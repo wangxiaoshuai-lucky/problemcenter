@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="LONGVARCHAR"/>
+        <result column="input" property="input" jdbcType="LONGVARCHAR"/>
+        <result column="output" property="output" jdbcType="LONGVARCHAR"/>
+        <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR"/>
+        <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR"/>
+        <result column="hit" property="hit" jdbcType="LONGVARCHAR"/>
+        <result column="time_limit" property="timeLimit" jdbcType="INTEGER"/>
+        <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER"/>
+        <result column="special_judge" property="specialJudge" jdbcType="TINYINT"/>
+        <result column="special_judge_source" property="specialJudgeSource" jdbcType="LONGVARCHAR"/>
+        <result column="frame_source" property="frameSource" jdbcType="LONGVARCHAR"/>
+        <result column="frame_source_compiler_id" property="frameSourceCompilerId" jdbcType="TINYINT"/>
+        <result column="source" property="source" jdbcType="LONGVARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="ALL_COLUMNS">
+        `id`, `title`, `description`, `input`, `output`, `sample_input`, `sample_output`,
+         `hint`, `time_limit`, `memory_limit`, `special_judge`, `special_judge_source`,
+         `frame_source`, `frame_source_compiler_id`, `source`, `status`
+    </sql>
+
+    <select id="queryByIds" resultMap="BaseResultMap">
+        select
+        <include refid="ALL_COLUMNS"/>
+        from `Problem`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

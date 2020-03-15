@@ -1,0 +1,72 @@
+package com.kelab.problemcenter.service.Impl;
+
+import com.kelab.info.context.Context;
+import com.kelab.info.problemcenter.ProblemUserMarkInfo;
+import com.kelab.problemcenter.constant.enums.MarkType;
+import com.kelab.problemcenter.convert.ProblemUserMarkConvert;
+import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
+import com.kelab.problemcenter.dal.repo.ProblemUserMarkRepo;
+import com.kelab.problemcenter.service.ProblemUserMarkService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
+
+    private final ProblemUserMarkRepo problemUserMarkRepo;
+
+    @Autowired(required = false)
+    public ProblemUserMarkServiceImpl(ProblemUserMarkRepo problemUserMarkRepo) {
+        this.problemUserMarkRepo = problemUserMarkRepo;
+    }
+
+    @Override
+    public Map<MarkType, List<ProblemUserMarkInfo>> queryAcAndChallenging(Context context, Integer userId) {
+        Map<MarkType, List<ProblemUserMarkInfo>> result = new HashMap<>();
+        List<ProblemUserMarkDomain> allRecords = problemUserMarkRepo.queryByUserIdAndTypes(userId, Arrays.asList(MarkType.AC, MarkType.CHALLENGING));
+        if (CollectionUtils.isEmpty(allRecords)) {
+            result.put(MarkType.AC, Collections.emptyList());
+            result.put(MarkType.CHALLENGING, Collections.emptyList());
+            return result;
+        }
+        Map<MarkType, List<ProblemUserMarkDomain>> collect = allRecords.stream().collect(Collectors.groupingBy(ProblemUserMarkDomain::getMarkType));
+        if (collect.containsKey(MarkType.AC)) {
+            result.put(MarkType.AC, convertDomainsToInfos(collect.get(MarkType.AC)));
+        }
+        if (collect.containsKey(MarkType.CHALLENGING)) {
+            result.put(MarkType.CHALLENGING, convertDomainsToInfos(collect.get(MarkType.CHALLENGING)));
+        }
+        return result;
+    }
+
+    @Override
+    public List<ProblemUserMarkInfo> collect(Context context, Integer userId) {
+        List<ProblemUserMarkDomain> collects = problemUserMarkRepo.queryByUserIdAndTypes(userId, Collections.singletonList(MarkType.COLLECT));
+        return convertDomainsToInfos(collects);
+    }
+
+    @Override
+    public void deleteOrSave(Context context, ProblemUserMarkInfo record) {
+        List<ProblemUserMarkDomain> old = problemUserMarkRepo.queryByUserIdAndProAndTypes(record.getUserId(), record.getProblemId(), Collections.singletonList(MarkType.COLLECT));
+        if (CollectionUtils.isEmpty(old)) {
+            // 添加收藏
+            problemUserMarkRepo.save(record.getUserId(), record.getProblemId(), MarkType.COLLECT);
+        } else {
+            // 删除收藏
+            problemUserMarkRepo.delete(record.getUserId(), record.getProblemId(), MarkType.COLLECT);
+        }
+    }
+
+    private List<ProblemUserMarkInfo> convertDomainsToInfos(List<ProblemUserMarkDomain> domains) {
+        if (CollectionUtils.isEmpty(domains)) {
+            return Collections.emptyList();
+        }
+        List<ProblemUserMarkInfo> infos = new ArrayList<>(domains.size());
+        domains.forEach(item -> infos.add(ProblemUserMarkConvert.domainToVo(item)));
+        return infos;
+    }
+}

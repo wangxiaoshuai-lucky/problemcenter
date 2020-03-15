@@ -43,6 +43,7 @@ cache:
 logging:
   level:
     root: info
+    com.kelab.problemcenter.dal.dao: debug
   file: /problemcenter.log
 
 # mybatis 扫描路径

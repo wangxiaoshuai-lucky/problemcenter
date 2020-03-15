@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemUserMarkMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemUseMarkModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
+        <result column="mark_type" property="markType" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `user_id`, `problem_id`, `mark_type`
+    </sql>
+
+    <select id="queryByUserIdAndTypes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_mark`
+        where `user_id` = #{userId, jdbcType=INTEGER}
+        and `mark_type` in
+        <foreach collection="types" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryByUserIdAndProIdAndTypes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_mark`
+        where `user_id` = #{userId, jdbcType=INTEGER}
+        and `problem_id` = #{probId, jdbcType=INTEGER}
+        and `mark_type` in
+        <foreach collection="types" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="save">
+        insert into `Problem_user_mark`
+        (`user_id`, `problem_id`, `mark_type`)
+        values
+        (#{userId, jdbcType=INTEGER}, #{probId, jdbcType=INTEGER}, #{type, jdbcType=INTEGER})
+    </insert>
+
+    <delete id="delete">
+        delete from `Problem_user_mark`
+        where `user_id` = #{userId, jdbcType=INTEGER}
+        and `problem_id` = #{probId, jdbcType=INTEGER}
+        and `mark_type` = #{type, jdbcType=INTEGER}
+    </delete>
+</mapper>
