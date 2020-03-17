@@ -4,7 +4,7 @@ import cn.wzy.verifyUtils.annotation.Verify;
 import com.kelab.info.base.JsonAndModel;
 import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
-import com.kelab.info.problemcenter.ProblemUserMarkInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
 import com.kelab.problemcenter.service.ProblemUserMarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

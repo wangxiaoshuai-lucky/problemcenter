@@ -25,12 +25,16 @@
         </foreach>
     </select>
 
-    <select id="queryByUserIdAndProIdAndTypes" resultMap="BaseResultMap">
+    <select id="queryByUserIdAndProIdsAndTypes" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from `Problem_user_mark`
         where `user_id` = #{userId, jdbcType=INTEGER}
-        and `problem_id` = #{probId, jdbcType=INTEGER}
+        and `problem_id` in
+        <foreach collection="probIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
         and `mark_type` in
         <foreach collection="types" item="item"
                  open="(" separator="," close=")">

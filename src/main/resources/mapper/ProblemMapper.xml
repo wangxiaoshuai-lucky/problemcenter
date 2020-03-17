@@ -10,7 +10,7 @@
         <result column="output" property="output" jdbcType="LONGVARCHAR"/>
         <result column="sample_input" property="sampleInput" jdbcType="LONGVARCHAR"/>
         <result column="sample_output" property="sampleOutput" jdbcType="LONGVARCHAR"/>
-        <result column="hit" property="hit" jdbcType="LONGVARCHAR"/>
+        <result column="hint" property="hint" jdbcType="LONGVARCHAR"/>
         <result column="time_limit" property="timeLimit" jdbcType="INTEGER"/>
         <result column="memory_limit" property="memoryLimit" jdbcType="INTEGER"/>
         <result column="special_judge" property="specialJudge" jdbcType="TINYINT"/>
@@ -19,13 +19,19 @@
         <result column="frame_source_compiler_id" property="frameSourceCompilerId" jdbcType="TINYINT"/>
         <result column="source" property="source" jdbcType="LONGVARCHAR"/>
         <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="creator_id" property="creatorId" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <!-- 只有准确查询的时候才获取所有字段 -->
     <sql id="ALL_COLUMNS">
         `id`, `title`, `description`, `input`, `output`, `sample_input`, `sample_output`,
          `hint`, `time_limit`, `memory_limit`, `special_judge`, `special_judge_source`,
-         `frame_source`, `frame_source_compiler_id`, `source`, `status`
+         `frame_source`, `frame_source_compiler_id`, `source`, `status`, `creator_id`,
+         UNIX_TIMESTAMP(`create_time`) * 1000 as `create_time`, UNIX_TIMESTAMP(`modify_time`) * 1000 as `modify_time`
     </sql>
+
 
     <select id="queryByIds" resultMap="BaseResultMap">
         select
@@ -37,4 +43,71 @@
             #{item}
         </foreach>
     </select>
+
+    <sql id="LIMIT_SQL">
+        limit ${(query.page - 1) * query.rows}, ${query.rows}
+    </sql>
+
+    <select id="queryPage" resultMap="BaseResultMap">
+        select
+        `pro`.`id`, `pro`.`title`, `pro`.`source`, `pro`.`status`, `pro`.`creator_id`,
+        UNIX_TIMESTAMP(`pro`.`create_time`) * 1000 as `create_time`, UNIX_TIMESTAMP(`pro`.`modify_time`) * 1000 as
+        `modify_time`
+        from `Problem` `pro`
+        <if test="query.orderByDifficult == true">
+            inner join `Problem_submit_info` `psi` on `pro`.`id` = `psi`.`problem_id`
+        </if>
+        where `pro`.`status` = 2
+        <if test="query.title != null and query.title != ''">
+            and `pro`.`title` like concat(#{query.title},'%')
+        </if>
+        <if test="query.source != null and query.source != ''">
+            and `pro`.`source` like concat(#{query.source},'%')
+        </if>
+        <if test="query.ids != null and query.ids.size() != 0">
+            and `pro`.`id` in
+            <foreach collection="query.ids" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="query.orderByDifficult == true">
+            order by (`psi`.`ac_num`/`psi`.`submit_num`)
+        </if>
+        <if test="query.orderByDifficult == false and query.orderByTitle == true">
+            order by convert(`pro`.`title` using gbk)
+        </if>
+        <include refid="LIMIT_SQL"/>
+    </select>
+
+    <select id="queryTotal" resultType="java.lang.Integer">
+        select
+        count(*)
+        from `Problem` `pro`
+        where `pro`.`status` = 2
+        <if test="query.title != null and query.title != ''">
+            and `pro`.`title` like concat(#{query.title},'%')
+        </if>
+        <if test="query.source != null and query.source != ''">
+            and `pro`.`source` like concat(#{query.source},'%')
+        </if>
+        <if test="query.ids != null and query.ids.size() != 0">
+            and `pro`.`id` in
+            <foreach collection="query.ids" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into `Problem`
+        (`id`, `title`, `description`, `input`, `output`, `sample_input`, `sample_output`,
+         `hint`, `time_limit`, `memory_limit`, `special_judge`, `special_judge_source`,
+         `frame_source`, `frame_source_compiler_id`, `source`, `status`, `creator_id`)
+         values
+         (#{record.id}, #{record.title}, #{record.description}, #{record.input}, #{record.output}, #{record.sampleInput}, #{record.sampleOutput},
+          #{record.hint}, #{record.timeLimit}, #{record.memoryLimit}, #{record.specialJudge}, #{record.specialJudgeSource},
+          #{record.frameSource}, #{record.frameSourceCompilerId}, #{record.source}, #{record.status}, #{record.creatorId})
+    </insert>
 </mapper>

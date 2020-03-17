@@ -1,5 +1,6 @@
 package com.kelab.problemcenter.constant.enums;
 
 public enum CacheBizName {
-    PROBLEM_INFO
+    LOG,
+    PROBLEM_INFO, PROBLEM_TAGS
 }

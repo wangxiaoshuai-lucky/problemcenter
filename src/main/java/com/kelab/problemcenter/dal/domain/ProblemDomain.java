@@ -1,5 +1,11 @@
 package com.kelab.problemcenter.dal.domain;
 
+import com.kelab.info.usercenter.info.UserInfo;
+import com.kelab.problemcenter.constant.enums.MarkType;
+import com.kelab.problemcenter.constant.enums.ProblemStatus;
+
+import java.util.List;
+
 public class ProblemDomain {
 
     private Integer id;
@@ -16,7 +22,7 @@ public class ProblemDomain {
 
     private String sampleOutput;
 
-    private String hit;
+    private String hint;
 
     private Integer timeLimit;
 
@@ -32,9 +38,110 @@ public class ProblemDomain {
 
     private String source;
 
-    private Integer status;
+    private ProblemStatus status;
+
+    private Integer creatorId;
+
+    private Long createTime;
+
+    private Long modifyTime;
+
+    private Integer acNum;
+
+    private Integer submitNum;
+
+    private MarkType userStatus;
+
+    private Boolean userCollect;
+
+    private List<ProblemTagsDomain> tagsDomains;
+
+    private UserInfo creatorInfo;
 
     private ProblemSubmitInfoDomain submitInfoDomain;
+
+    public ProblemDomain() {
+    }
+
+    public Long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(Long modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
+    public Integer getAcNum() {
+        return acNum;
+    }
+
+    public void setAcNum(Integer acNum) {
+        this.acNum = acNum;
+    }
+
+    public Integer getSubmitNum() {
+        return submitNum;
+    }
+
+    public void setSubmitNum(Integer submitNum) {
+        this.submitNum = submitNum;
+    }
+
+    public ProblemStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProblemStatus status) {
+        this.status = status;
+    }
+
+    public MarkType getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(MarkType userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public Boolean getUserCollect() {
+        return userCollect;
+    }
+
+    public void setUserCollect(Boolean userCollect) {
+        this.userCollect = userCollect;
+    }
+
+    public List<ProblemTagsDomain> getTagsDomains() {
+        return tagsDomains;
+    }
+
+    public void setTagsDomains(List<ProblemTagsDomain> tagsDomains) {
+        this.tagsDomains = tagsDomains;
+    }
+
+    public Integer getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Integer creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public UserInfo getCreatorInfo() {
+        return creatorInfo;
+    }
+
+    public void setCreatorInfo(UserInfo creatorInfo) {
+        this.creatorInfo = creatorInfo;
+    }
 
     public Integer getId() {
         return id;
@@ -92,12 +199,12 @@ public class ProblemDomain {
         this.sampleOutput = sampleOutput;
     }
 
-    public String getHit() {
-        return hit;
+    public String getHint() {
+        return hint;
     }
 
-    public void setHit(String hit) {
-        this.hit = hit;
+    public void setHint(String hint) {
+        this.hint = hint;
     }
 
     public Integer getTimeLimit() {
@@ -154,14 +261,6 @@ public class ProblemDomain {
 
     public void setSource(String source) {
         this.source = source;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public ProblemSubmitInfoDomain getSubmitInfoDomain() {

@@ -1,6 +1,6 @@
 package com.kelab.problemcenter.convert;
 
-import com.kelab.info.problemcenter.ProblemUserMarkInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
 import com.kelab.problemcenter.dal.model.ProblemUseMarkModel;

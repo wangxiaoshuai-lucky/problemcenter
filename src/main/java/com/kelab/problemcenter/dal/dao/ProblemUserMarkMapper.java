@@ -12,7 +12,7 @@ public interface ProblemUserMarkMapper {
 
     List<ProblemUseMarkModel> queryByUserIdAndTypes(@Param("userId") Integer userId, @Param("types") List<Integer> types);
 
-    List<ProblemUseMarkModel> queryByUserIdAndProIdAndTypes(@Param("userId") Integer userId, @Param("probId") Integer probId, @Param("types") List<Integer> types);
+    List<ProblemUseMarkModel> queryByUserIdAndProIdsAndTypes(@Param("userId") Integer userId, @Param("probIds") List<Integer> probIds, @Param("types") List<Integer> types);
 
     void save(@Param("userId") Integer userId, @Param("probId") Integer probId, @Param("type") Integer type);
 

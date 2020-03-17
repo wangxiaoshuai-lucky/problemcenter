@@ -16,7 +16,7 @@ public class ProblemModel {
 
     private String sampleOutput;
 
-    private String hit;
+    private String hint;
 
     private Integer timeLimit;
 
@@ -33,6 +33,28 @@ public class ProblemModel {
     private String source;
 
     private Integer status;
+
+    private Integer creatorId;
+
+    private Long createTime;
+
+    private Long modifyTime;
+
+    public Long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(Long modifyTime) {
+        this.modifyTime = modifyTime;
+    }
 
     public Integer getId() {
         return id;
@@ -90,12 +112,12 @@ public class ProblemModel {
         this.sampleOutput = sampleOutput;
     }
 
-    public String getHit() {
-        return hit;
+    public String getHint() {
+        return hint;
     }
 
-    public void setHit(String hit) {
-        this.hit = hit;
+    public void setHint(String hint) {
+        this.hint = hint;
     }
 
     public Integer getTimeLimit() {
@@ -160,5 +182,13 @@ public class ProblemModel {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Integer creatorId) {
+        this.creatorId = creatorId;
     }
 }

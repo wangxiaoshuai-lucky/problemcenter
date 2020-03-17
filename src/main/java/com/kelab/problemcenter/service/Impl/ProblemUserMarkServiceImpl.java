@@ -1,7 +1,7 @@
 package com.kelab.problemcenter.service.Impl;
 
 import com.kelab.info.context.Context;
-import com.kelab.info.problemcenter.ProblemUserMarkInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.convert.ProblemUserMarkConvert;
 import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
@@ -51,7 +51,9 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
 
     @Override
     public void deleteOrSave(Context context, ProblemUserMarkInfo record) {
-        List<ProblemUserMarkDomain> old = problemUserMarkRepo.queryByUserIdAndProAndTypes(record.getUserId(), record.getProblemId(), Collections.singletonList(MarkType.COLLECT));
+        List<ProblemUserMarkDomain> old = problemUserMarkRepo.queryByUserIdAndProIdsAndTypes(record.getUserId(),
+                Collections.singletonList(record.getProblemId()),
+                Collections.singletonList(MarkType.COLLECT));
         if (CollectionUtils.isEmpty(old)) {
             // 添加收藏
             problemUserMarkRepo.save(record.getUserId(), record.getProblemId(), MarkType.COLLECT);

@@ -43,9 +43,9 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
     }
 
     @Override
-    public List<ProblemUserMarkDomain> queryByUserIdAndProAndTypes(Integer userId, Integer problemId, List<MarkType> types) {
+    public List<ProblemUserMarkDomain> queryByUserIdAndProIdsAndTypes(Integer userId, List<Integer> problemIds, List<MarkType> types) {
         List<Integer> markTypes = buildTypes(types);
-        List<ProblemUseMarkModel> models = problemUserMarkMapper.queryByUserIdAndProIdAndTypes(userId, problemId, markTypes);
+        List<ProblemUseMarkModel> models = problemUserMarkMapper.queryByUserIdAndProIdsAndTypes(userId, problemIds, markTypes);
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
@@ -74,7 +74,7 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
         // 填充title
         List<Integer> problemIds = result.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toList());
         List<ProblemDomain> problemDomains = problemRepo.queryByIds(problemIds, false);
-        Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle));
+        Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
         result.forEach(item -> item.setTitle(idTitleMap.getOrDefault(item.getProblemId(), "<题目已删除>")));
         return result;
     }

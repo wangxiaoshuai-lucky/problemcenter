@@ -35,4 +35,11 @@ public class ProblemSubmitInfoRepoImpl implements ProblemSubmitInfoRepo {
         models.forEach(item-> result.add(ProblemSubmitInfoConvert.modelToDomain(item)));
         return result;
     }
+
+    @Override
+    public void save(ProblemSubmitInfoDomain record) {
+        ProblemSubmitInfoModel model = ProblemSubmitInfoConvert.domainToModel(record);
+        problemSubmitInfoMapper.save(model);
+        record.setId(model.getId());
+    }
 }

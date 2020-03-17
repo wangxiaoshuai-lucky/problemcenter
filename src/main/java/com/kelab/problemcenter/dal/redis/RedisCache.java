@@ -115,6 +115,35 @@ public class RedisCache {
         return result;
     }
 
+    public void saveLog(CacheBizName bizName, String setName, String value) {
+        try {
+            redisTemplate.opsForList().rightPush(bizName + setName, value);
+            // 刷新超时时间
+            redisTemplate.expire(bizName + setName, 300000L, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void lAdd(CacheBizName bizName, String setName, String value) {
+        try {
+            redisTemplate.opsForList().rightPush(bizName + setName, value);
+            // 刷新超时时间
+            redisTemplate.expire(bizName + setName, AppSetting.cacheMillisecond, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<String> lRange(CacheBizName bizName, String setName, long start, long end) {
+        try {
+            return redisTemplate.opsForList().range(bizName + setName, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
     public boolean delete(CacheBizName bizName, Object key) {
         boolean result = false;
         try {
@@ -146,4 +175,22 @@ public class RedisCache {
             e.printStackTrace();
         }
     }
+
+    public Set<String> zRange(CacheBizName bizName, String zSetName, long start, long end) {
+        try {
+            return redisTemplate.opsForZSet().range(bizName + zSetName, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Collections.emptySet();
+    }
+
+    public void removeRangeByScore(CacheBizName bizName, String zSetName, Double min, Double max) {
+        try {
+            redisTemplate.opsForZSet().removeRangeByScore(bizName + zSetName, min, max);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

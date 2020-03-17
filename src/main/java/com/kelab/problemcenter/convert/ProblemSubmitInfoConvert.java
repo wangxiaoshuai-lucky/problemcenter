@@ -15,4 +15,13 @@ public class ProblemSubmitInfoConvert {
         return domain;
     }
 
+    public static ProblemSubmitInfoModel domainToModel(ProblemSubmitInfoDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        ProblemSubmitInfoModel model = new ProblemSubmitInfoModel();
+        BeanUtils.copyProperties(domain, model);
+        return model;
+    }
+
 }

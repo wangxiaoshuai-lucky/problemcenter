@@ -37,7 +37,7 @@
 
     <select id="queryByProbIds" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         select
-        <include refid="Base_Column_List"/>,
+        <include refid="Base_Column_List"/>
         from `Problem_submit_info`
         where `problem_id` in
         <foreach collection="probIds" item="item" open="("

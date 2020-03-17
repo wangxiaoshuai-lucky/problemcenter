@@ -19,7 +19,7 @@ public enum MarkType {
             case 3:
                 return COLLECT;
         }
-        throw new RuntimeException("MarkType parse wrong");
+        throw new IllegalArgumentException("MarkType parse wrong");
     }
 
     public int value() {

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemAttachTagsMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemAttachTagsModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
+        <result column="tags_id" property="tagsId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `problem_id`, `tags_id`
+    </sql>
+
+    <select id="queryByProblemIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_attach_tags`
+        where `problem_id` in
+        <foreach collection="probIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="queryByTagsId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_attach_tags`
+        where `tags_id` = #{tagsId, jdbcType=INTEGER}
+    </select>
+
+    <select id="queryByTagsName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_attach_tags`
+        where `tags_id` in
+        (select `id` from `Problem_tags` where `name` like concat(#{name, jdbcType=VARCHAR}, '%'))
+    </select>
+
+    <insert id="saveList">
+        insert into `Problem_attach_tags`
+        (`problem_id`, `tags_id`)
+        values
+        <foreach collection="records" item="item" index="index" separator=",">
+            (#{item.problemId}, #{item.tagsId})
+        </foreach>
+    </insert>
+</mapper>
