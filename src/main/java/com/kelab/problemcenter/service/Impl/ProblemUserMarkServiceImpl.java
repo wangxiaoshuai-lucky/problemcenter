@@ -27,10 +27,10 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
     @Override
     public Map<MarkType, List<ProblemUserMarkInfo>> queryAcAndChallenging(Context context, Integer userId) {
         Map<MarkType, List<ProblemUserMarkInfo>> result = new HashMap<>();
+        result.put(MarkType.AC, Collections.emptyList());
+        result.put(MarkType.CHALLENGING, Collections.emptyList());
         List<ProblemUserMarkDomain> allRecords = problemUserMarkRepo.queryByUserIdAndTypes(userId, Arrays.asList(MarkType.AC, MarkType.CHALLENGING));
         if (CollectionUtils.isEmpty(allRecords)) {
-            result.put(MarkType.AC, Collections.emptyList());
-            result.put(MarkType.CHALLENGING, Collections.emptyList());
             return result;
         }
         Map<MarkType, List<ProblemUserMarkDomain>> collect = allRecords.stream().collect(Collectors.groupingBy(ProblemUserMarkDomain::getMarkType));
