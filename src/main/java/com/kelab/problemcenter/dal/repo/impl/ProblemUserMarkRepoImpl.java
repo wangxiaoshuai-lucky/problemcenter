@@ -8,6 +8,7 @@ import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
 import com.kelab.problemcenter.dal.model.ProblemUseMarkModel;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemUserMarkRepo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -75,7 +76,7 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
         List<Integer> problemIds = result.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toList());
         List<ProblemDomain> problemDomains = problemRepo.queryByIds(problemIds, false);
         Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
-        result.forEach(item -> item.setTitle(idTitleMap.getOrDefault(item.getProblemId(), "<题目已删除>")));
-        return result;
+        result.forEach(item -> item.setTitle(idTitleMap.get(item.getProblemId())));
+        return result.stream().filter(item -> StringUtils.isNotBlank(item.getTitle())).collect(Collectors.toList());
     }
 }
