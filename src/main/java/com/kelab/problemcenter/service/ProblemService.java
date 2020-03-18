@@ -8,6 +8,8 @@ import com.kelab.info.problemcenter.query.ProblemQuery;
 import com.kelab.info.problemcenter.query.ProblemTagsQuery;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 
+import java.util.List;
+
 public interface ProblemService {
 
     /**
@@ -24,8 +26,22 @@ public interface ProblemService {
     void saveProblem(Context context, ProblemDomain record);
 
     /**
-     * 如果指定 ids：则准确查询
-     * 否则条件查询
+     * 删除题目
      */
-    PaginationResult<ProblemTagsInfo> queryPage(Context context, ProblemTagsQuery query);
+    void deleteProblems(Context context, List<Integer> probIds);
+
+    /**
+     * 更新题目
+     */
+    void updateProblem(Context context, ProblemDomain record);
+
+    /**
+     * 题目总数
+     */
+    Integer problemTotal(Context context);
+
+    /**
+     * 查询 source
+     */
+    List<String> querySource(Context context, Integer limit);
 }

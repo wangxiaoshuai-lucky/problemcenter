@@ -1,5 +1,6 @@
 package com.kelab.problemcenter.dal.repo;
 
+import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemQuery;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 
@@ -26,4 +27,19 @@ public interface ProblemRepo {
      * 保存题目
      */
     void save(ProblemDomain record);
+
+    /**
+     * 删除题目
+     */
+    void delete(List<Integer> ids);
+
+    /**
+     * 更新题目
+     */
+    void update(ProblemDomain record);
+
+    /**
+     * 查询 source, 万年不变，走缓存
+     */
+    List<String> querySource(Integer limit);
 }

@@ -21,7 +21,9 @@ public class ProblemConvert {
         }
         ProblemModel model = new ProblemModel();
         BeanUtils.copyProperties(domain, model);
-        model.setStatus(domain.getStatus().value());
+        if (domain.getStatus() != null) {
+            model.setStatus(domain.getStatus().value());
+        }
         return model;
     }
 

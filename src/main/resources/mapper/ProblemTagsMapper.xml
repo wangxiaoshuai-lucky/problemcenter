@@ -53,4 +53,24 @@
             #{item}
         </foreach>
     </select>
+
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        insert into `Problem_tags`
+        (`name`) values (#{record.name, jdbcType=VARCHAR})
+    </insert>
+
+    <update id="update">
+        update `Problem_tags`
+        set `name` = #{record.name, jdbcType=VARCHAR}
+        where `id` = #{record.id, jdbcType=INTEGER}
+    </update>
+
+    <delete id="delete">
+        delete from `Problem_tags`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

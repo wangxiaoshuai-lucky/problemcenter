@@ -25,4 +25,14 @@ public interface ProblemAttachTagsRepo {
      * 插入列表
      */
     void saveList(List<ProblemAttachTagsDomain> records);
+
+    /**
+     * 删除题目-标签关联
+     */
+    void deleteByProblemIds(List<Integer> probIds);
+
+    /**
+     * 删除题目-标签关联
+     */
+    void deleteByTagsIds(List<Integer> tagsIds);
 }

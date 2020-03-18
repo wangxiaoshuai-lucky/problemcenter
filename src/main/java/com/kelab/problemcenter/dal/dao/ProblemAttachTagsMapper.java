@@ -1,10 +1,8 @@
 package com.kelab.problemcenter.dal.dao;
 
-import com.kelab.problemcenter.dal.domain.ProblemAttachTagsDomain;
 import com.kelab.problemcenter.dal.model.ProblemAttachTagsModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -30,4 +28,14 @@ public interface ProblemAttachTagsMapper {
      * 插入列表
      */
     void saveList(@Param("records") List<ProblemAttachTagsModel> records);
+
+    /**
+     * 删除题目-标签关联
+     */
+    void deleteByProblemIds(@Param("probIds") List<Integer> probIds);
+
+    /**
+     * 删除题目-标签关联
+     */
+    void deleteByTagsIds(@Param("tagsIds") List<Integer> tagsIds);
 }

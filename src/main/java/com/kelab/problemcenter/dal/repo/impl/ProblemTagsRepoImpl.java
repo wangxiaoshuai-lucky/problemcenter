@@ -8,6 +8,7 @@ import com.kelab.problemcenter.dal.dao.ProblemTagsMapper;
 import com.kelab.problemcenter.dal.domain.ProblemTagsDomain;
 import com.kelab.problemcenter.dal.model.ProblemTagsModel;
 import com.kelab.problemcenter.dal.redis.RedisCache;
+import com.kelab.problemcenter.dal.repo.ProblemAttachTagsRepo;
 import com.kelab.problemcenter.dal.repo.ProblemTagsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,12 +24,16 @@ public class ProblemTagsRepoImpl implements ProblemTagsRepo {
 
     private ProblemTagsMapper problemTagsMapper;
 
+    private ProblemAttachTagsRepo problemAttachTagsRepo;
+
     private RedisCache redisCache;
 
     @Autowired(required = false)
     public ProblemTagsRepoImpl(ProblemTagsMapper problemTagsMapper,
+                               ProblemAttachTagsRepo problemAttachTagsRepo,
                                RedisCache redisCache) {
         this.problemTagsMapper = problemTagsMapper;
+        this.problemAttachTagsRepo = problemAttachTagsRepo;
         this.redisCache = redisCache;
     }
 
@@ -59,6 +64,26 @@ public class ProblemTagsRepoImpl implements ProblemTagsRepo {
             return dbModels.stream().collect(Collectors.toMap(ProblemTagsModel::getId, obj -> obj, (v1, v2) -> v2));
         });
         return convertToDomain(models);
+    }
+
+    @Override
+    public void save(ProblemTagsDomain record) {
+        ProblemTagsModel model = ProblemTagsConvert.domainToModel(record);
+        problemTagsMapper.save(model);
+        record.setId(model.getId());
+    }
+
+    @Override
+    public void update(ProblemTagsDomain record) {
+        problemTagsMapper.update(ProblemTagsConvert.domainToModel(record));
+        redisCache.delete(CacheBizName.PROBLEM_TAGS, record.getId());
+    }
+
+    @Override
+    public void delete(List<Integer> ids) {
+        problemTagsMapper.delete(ids);
+        problemAttachTagsRepo.deleteByTagsIds(ids);
+        redisCache.deleteList(CacheBizName.PROBLEM_TAGS, ids);
     }
 
     private List<ProblemTagsDomain> convertToDomain(List<ProblemTagsModel> problemTagsModels) {

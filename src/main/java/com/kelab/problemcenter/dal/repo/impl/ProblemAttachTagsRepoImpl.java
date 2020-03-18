@@ -43,6 +43,16 @@ public class ProblemAttachTagsRepoImpl implements ProblemAttachTagsRepo {
         problemAttachTagsMapper.saveList(convertToModel(records));
     }
 
+    @Override
+    public void deleteByProblemIds(List<Integer> probIds) {
+        problemAttachTagsMapper.deleteByProblemIds(probIds);
+    }
+
+    @Override
+    public void deleteByTagsIds(List<Integer> tagsIds) {
+        problemAttachTagsMapper.deleteByTagsIds(tagsIds);
+    }
+
     private List<ProblemAttachTagsModel> convertToModel(List<ProblemAttachTagsDomain> domains) {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();

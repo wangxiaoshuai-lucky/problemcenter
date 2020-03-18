@@ -13,7 +13,30 @@ import java.util.List;
 public class ProblemBuilder {
 
     public static ProblemDomain buildNewProblemDomain(ProblemInfo info) {
+        ProblemDomain domain = buildBasicInfo(info);
+        // 新题目 id 为null
+        domain.setId(null);
+        fillTagsInfos(domain, info);
+        // 初始化提交情况
+        ProblemSubmitInfoDomain submitInfoDomain = new ProblemSubmitInfoDomain();
+        submitInfoDomain.setSubmitNum(0);
+        submitInfoDomain.setAcNum(0);
+        domain.setSubmitInfoDomain(submitInfoDomain);
+        return domain;
+    }
+
+    public static ProblemDomain buildUpdateProblemDomain(ProblemInfo info) {
+        ProblemDomain domain = buildBasicInfo(info);
+        fillTagsInfos(domain, info);
+        return domain;
+    }
+
+    /**
+     * 构建题目的基本信息
+     */
+    private static ProblemDomain buildBasicInfo(ProblemInfo info) {
         ProblemDomain domain = new ProblemDomain();
+        domain.setId(info.getId());
         domain.setTitle(info.getTitle());
         domain.setDescription(info.getDescription());
         domain.setInput(info.getInput());
@@ -28,15 +51,17 @@ public class ProblemBuilder {
         domain.setFrameSource(info.getFrameSource());
         domain.setFrameSourceCompilerId(info.getFrameSourceCompilerId());
         domain.setSource(info.getSource());
+        return domain;
+    }
+
+    /**
+     * 构建标签信息
+     */
+    private static void fillTagsInfos(ProblemDomain domain, ProblemInfo info) {
         if (!CollectionUtils.isEmpty(info.getTagsInfos())) {
             List<ProblemTagsDomain> tagsDomains = new ArrayList<>(info.getTagsInfos().size());
             info.getTagsInfos().forEach(item -> tagsDomains.add(ProblemTagsConvert.infoToDomain(item)));
             domain.setTagsDomains(tagsDomains);
         }
-        ProblemSubmitInfoDomain submitInfoDomain = new ProblemSubmitInfoDomain();
-        submitInfoDomain.setSubmitNum(0);
-        submitInfoDomain.setAcNum(0);
-        domain.setSubmitInfoDomain(submitInfoDomain);
-        return domain;
     }
 }

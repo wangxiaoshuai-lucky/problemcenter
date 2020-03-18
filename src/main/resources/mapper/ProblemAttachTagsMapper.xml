@@ -46,4 +46,22 @@
             (#{item.problemId}, #{item.tagsId})
         </foreach>
     </insert>
+
+    <delete id="deleteByProblemIds">
+        delete from `Problem_attach_tags`
+        where `problem_id` in
+        <foreach collection="probIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByTagsIds">
+        delete from `Problem_attach_tags`
+        where `tags_id` in
+        <foreach collection="tagsIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

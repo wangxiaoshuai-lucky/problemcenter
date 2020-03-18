@@ -3,17 +3,13 @@ package com.kelab.problemcenter.service.Impl;
 import com.alibaba.fastjson.JSON;
 import com.kelab.info.base.PaginationResult;
 import com.kelab.info.base.constant.UserRoleConstant;
-import com.kelab.info.base.query.BaseQuery;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemInfo;
-import com.kelab.info.problemcenter.info.ProblemTagsInfo;
 import com.kelab.info.problemcenter.query.ProblemQuery;
-import com.kelab.info.problemcenter.query.ProblemTagsQuery;
 import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.constant.enums.ProblemStatus;
 import com.kelab.problemcenter.convert.ProblemConvert;
-import com.kelab.problemcenter.convert.ProblemTagsConvert;
 import com.kelab.problemcenter.dal.domain.ProblemAttachTagsDomain;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.domain.ProblemTagsDomain;
@@ -76,9 +72,36 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
+    public void deleteProblems(Context context, List<Integer> probIds) {
+        List<ProblemDomain> oldProblems = problemRepo.queryByIds(probIds, true);
+        problemRepo.delete(probIds);
+        contextLogger.info(context, "删除题目%s", JSON.toJSONString(oldProblems));
+    }
+
+    @Override
+    public void updateProblem(Context context, ProblemDomain record) {
+        List<ProblemDomain> oldProblems = problemRepo.queryByIds(Collections.singletonList(record.getId()), false);
+        problemRepo.update(record);
+        contextLogger.info(context, "更新题目，原信息:%s", JSON.toJSONString(oldProblems));
+    }
+
+    @Override
+    public Integer problemTotal(Context context) {
+        return problemRepo.queryTotal(new ProblemQuery());
+    }
+
+    @Override
+    public List<String> querySource(Context context, Integer limit) {
+        if (limit == null) {
+            limit = 50;
+        }
+        return problemRepo.querySource(limit);
+    }
+
+    @Override
     public PaginationResult<ProblemInfo> queryPage(Context context, ProblemQuery query) {
         PaginationResult<ProblemInfo> result = new PaginationResult<>();
-        List<Integer> totalIds = this.totalIds(query);
+        List<Integer> totalIds = CommonService.totalIds(query);
         if (totalIds.size() > 0) {
             // 可以走缓存
             List<ProblemInfo> problemInfos = fillAndConvertToInfo(context, problemRepo.queryByIds(totalIds, true));
@@ -103,32 +126,6 @@ public class ProblemServiceImpl implements ProblemService {
             result.setPagingList(problemInfos);
         }
         return result;
-    }
-
-    @Override
-    public PaginationResult<ProblemTagsInfo> queryPage(Context context, ProblemTagsQuery query) {
-        PaginationResult<ProblemTagsInfo> result = new PaginationResult<>();
-        List<Integer> ids = totalIds(query);
-        if (ids.size() > 0) {
-            // 可以走缓存
-            List<ProblemTagsInfo> infos = convertToTagsInfo(problemTagsRepo.queryByIds(ids));
-            result.setTotal(infos.size());
-            result.setPagingList(infos);
-        } else {
-            List<ProblemTagsInfo> problemInfos = convertToTagsInfo(problemTagsRepo.queryPage(query));
-            result.setTotal(problemTagsRepo.queryTotal(query));
-            result.setPagingList(problemInfos);
-        }
-        return result;
-    }
-
-    private List<ProblemTagsInfo> convertToTagsInfo(List<ProblemTagsDomain> domains) {
-        if (CollectionUtils.isEmpty(domains)) {
-            return Collections.emptyList();
-        }
-        List<ProblemTagsInfo> infos = new ArrayList<>();
-        domains.forEach(item -> infos.add(ProblemTagsConvert.domainToInfo(item)));
-        return infos;
     }
 
     /**
@@ -220,17 +217,5 @@ public class ProblemServiceImpl implements ProblemService {
         if (!context.getOperatorRoleId().equals(UserRoleConstant.ADMIN) && !context.getOperatorRoleId().equals(UserRoleConstant.TEACHER)) {
             problemDomains.forEach(item -> item.setSpecialJudgeSource(null));
         }
-    }
-
-
-    private List<Integer> totalIds(BaseQuery query) {
-        List<Integer> ids = new ArrayList<>();
-        if (query.getIds() != null) {
-            ids.addAll(query.getIds());
-        }
-        if (query.getId() != null) {
-            ids.add(query.getId());
-        }
-        return ids;
     }
 }

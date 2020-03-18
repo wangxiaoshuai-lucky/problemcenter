@@ -1,18 +1,17 @@
 package com.kelab.problemcenter.controller;
 
+import cn.wzy.verifyUtils.annotation.Verify;
 import com.kelab.info.base.JsonAndModel;
 import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemInfo;
 import com.kelab.info.problemcenter.query.ProblemQuery;
-import com.kelab.info.problemcenter.query.ProblemTagsQuery;
 import com.kelab.problemcenter.builder.ProblemBuilder;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.service.ProblemService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class ProblemController {
@@ -45,12 +44,43 @@ public class ProblemController {
     }
 
     /**
-     * 分页查询标签
+     * 删除题目
      */
-    @GetMapping("/tags.do")
-    public JsonAndModel queryPage(Context context, ProblemTagsQuery query) {
+    @DeleteMapping("/problem.do")
+    @Verify(sizeLimit = "pids [1, 200]")
+    public JsonAndModel delete(Context context, List<Integer> pids) {
+        problemService.deleteProblems(context, pids);
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
+    }
+
+    /**
+     * 修改题目
+     */
+    @PutMapping("/problem.do")
+    @Verify(notNull = "record.id")
+    public JsonAndModel update(Context context, @RequestBody ProblemInfo record) {
+        ProblemDomain updateRecord = ProblemBuilder.buildUpdateProblemDomain(record);
+        problemService.updateProblem(context, updateRecord);
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
+    }
+
+    /**
+     * 题目总数
+     */
+    @GetMapping("/problem/count.do")
+    public JsonAndModel problemTotal(Context context) {
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
-                .data(problemService.queryPage(context, query))
+                .data(problemService.problemTotal(context))
+                .build();
+    }
+
+    /**
+     * 查询来源列表
+     */
+    @GetMapping("/problem/source.do")
+    public JsonAndModel querySource(Context context, Integer limit) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(problemService.querySource(context, limit))
                 .build();
     }
 }

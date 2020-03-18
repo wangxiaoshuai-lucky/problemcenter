@@ -1,5 +1,6 @@
 package com.kelab.problemcenter.dal.dao;
 
+import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemTagsQuery;
 import com.kelab.problemcenter.dal.model.ProblemTagsModel;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,4 +31,18 @@ public interface ProblemTagsMapper {
      */
     List<ProblemTagsModel> queryByIds(@Param("ids") List<Integer> ids);
 
+    /**
+     * 添加标签
+     */
+    void save(@Param("record") ProblemTagsModel record);
+
+    /**
+     * 更新标签
+     */
+    void update(@Param("record") ProblemTagsModel record);
+
+    /**
+     * 删除标签
+     */
+    void delete(@Param("ids") List<Integer> ids);
 }

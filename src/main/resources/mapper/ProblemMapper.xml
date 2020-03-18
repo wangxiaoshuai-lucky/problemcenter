@@ -110,4 +110,69 @@
           #{record.hint}, #{record.timeLimit}, #{record.memoryLimit}, #{record.specialJudge}, #{record.specialJudgeSource},
           #{record.frameSource}, #{record.frameSourceCompilerId}, #{record.source}, #{record.status}, #{record.creatorId})
     </insert>
+
+    <delete id="delete">
+        delete from `Problem`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="update">
+        update `Problem`
+        <set>
+            <if test="record.title != null and record.title != ''">
+                `Problem`.`title` = #{record.title}
+            </if>
+            <if test="record.description != null and record.description != ''">
+                `Problem`.`description` = #{record.description}
+            </if>
+            <if test="record.input != null and record.input != ''">
+                `Problem`.`input` = #{record.input}
+            </if>
+            <if test="record.output != null and record.output != ''">
+                `Problem`.`output` = #{record.output}
+            </if>
+            <if test="record.sampleInput != null and record.sampleInput != ''">
+                `Problem`.`sample_input` = #{record.sampleInput}
+            </if>
+            <if test="record.sampleOutput != null and record.sampleOutput != ''">
+                `Problem`.`sample_output` = #{record.sampleOutput}
+            </if>
+            <if test="record.hint != null and record.hint != ''">
+                `Problem`.`hint` = #{record.hint}
+            </if>
+            <if test="record.time_limit != null">
+                `Problem`.`time_limit` = #{record.timeLimit}
+            </if>
+            <if test="record.memoryLimit != null">
+                `Problem`.`memory_limit` = #{record.memoryLimit}
+            </if>
+            <if test="record.specialJudge != null">
+                `Problem`.`special_judge` = #{record.specialJudge}
+            </if>
+            <if test="record.specialJudgeSource != null and record.specialJudgeSource != ''">
+                `Problem`.`special_judge_source` = #{record.specialJudgeSource}
+            </if>
+            <if test="record.frameSource != null and record.frameSource != ''">
+                `Problem`.`frame_source` = #{record.frameSource}
+            </if>
+            <if test="record.frameSourceCompilerId != null">
+                `Problem`.`frame_source_compiler_id` = #{record.frameSourceCompilerId}
+            </if>
+            <if test="record.source != null and record.source != ''">
+                `Problem`.`source` = #{record.source}
+            </if>
+        </set>
+    </update>
+
+    <select id="querySource" resultType="java.lang.String">
+        select `source`
+        from `Problem`
+        group by `source`
+        order by count(*)
+        limit #{limit}
+    </select>
 </mapper>

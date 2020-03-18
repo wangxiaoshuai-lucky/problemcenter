@@ -7,6 +7,15 @@ import org.springframework.beans.BeanUtils;
 
 public class ProblemTagsConvert {
 
+    public static ProblemTagsModel domainToModel(ProblemTagsDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        ProblemTagsModel model = new ProblemTagsModel();
+        BeanUtils.copyProperties(domain, model);
+        return model;
+    }
+
     public static ProblemTagsDomain modelToDomain(ProblemTagsModel model) {
         if (model == null) {
             return null;

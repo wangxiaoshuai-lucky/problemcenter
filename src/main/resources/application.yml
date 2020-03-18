@@ -1,50 +1,26 @@
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://202.115.161.211:17001/eureka/
+spring:
+  application:
+    name: service-problemcenter
+  ## 选择运行环境
+  profiles:
+    active: dev
 
+## 公共配置 ##
 server:
   port: 8764
   servlet:
     context-path: /problemcenter
 
-
-
-spring:
-  application:
-    name: service-problemcenter
-  # mysql 配置
-  datasource:
-    url: jdbc:mysql://202.115.161.211:13307/oj3?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
-    username: wzy
-    password: wzy
-    type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: com.mysql.jdbc.Driver
-  # redis 配置
-  redis:
-    host: 202.115.161.211
-    port: 16379
-    database: 0
-    timeout: 5000
-    jedis:
-      pool:
-        max-active: 50
-        max-wait: 3000
-        max-idle: 20
-        min-idle: 2
-
-
 # cache 配置
 cache:
   millisecond: 7200000
-
 
 # log 配置
 logging:
   level:
     root: info
     com.kelab.problemcenter.dal.dao: debug
-  file: /problemcenter.log
+  file: ./logs/problemcenter.log
 
 # mybatis 扫描路径
 mybatis:

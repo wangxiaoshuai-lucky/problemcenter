@@ -25,4 +25,19 @@ public interface ProblemTagsRepo {
      * 通过 ids 查询, 缓存
      */
     List<ProblemTagsDomain> queryByIds(List<Integer> ids);
+
+    /**
+     * 添加标签
+     */
+    void save(ProblemTagsDomain record);
+
+    /**
+     * 添加标签
+     */
+    void update(ProblemTagsDomain record);
+
+    /**
+     * 删除标签
+     */
+    void delete(List<Integer> ids);
 }

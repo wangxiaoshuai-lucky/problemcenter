@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
+@SuppressWarnings("unchecked")
 public class ProblemRepoImpl implements ProblemRepo {
 
     private ProblemMapper problemMapper;
@@ -79,13 +80,45 @@ public class ProblemRepoImpl implements ProblemRepo {
         ProblemSubmitInfoDomain submitInfoDomain = record.getSubmitInfoDomain();
         submitInfoDomain.setProblemId(model.getId());
         problemSubmitInfoRepo.save(submitInfoDomain);
+        saveAttachTags(record);
+    }
+
+    @Override
+    public void delete(List<Integer> ids) {
+        problemMapper.delete(ids);
+        problemAttachTagsRepo.deleteByProblemIds(ids);
+        redisCache.deleteList(CacheBizName.PROBLEM_INFO, ids);
+    }
+
+    @Override
+    public void update(ProblemDomain record) {
+        // 基本信息
+        ProblemModel model = ProblemConvert.domainToModel(record);
+        problemMapper.update(model);
+        // 保存最新标签信息
+        problemAttachTagsRepo.deleteByProblemIds(Collections.singletonList(record.getId()));
+        saveAttachTags(record);
+        redisCache.deleteList(CacheBizName.PROBLEM_INFO, Collections.singletonList(record.getId()));
+    }
+
+
+    @Override
+    public List<String> querySource(Integer limit) {
+        List<String> cacheData = (List<String>) redisCache.cacheOne(CacheBizName.PROBLEM_SOURCE, limit, List.class, missKey -> problemMapper.querySource(missKey));
+        if (CollectionUtils.isEmpty(cacheData)) {
+            return Collections.emptyList();
+        }
+        return cacheData;
+    }
+
+    private void saveAttachTags(ProblemDomain record) {
         // 标签信息
         List<ProblemTagsDomain> tagsDomains = record.getTagsDomains();
         if (!CollectionUtils.isEmpty(tagsDomains)) {
             List<ProblemAttachTagsDomain> attachDomains = new ArrayList<>(tagsDomains.size());
             tagsDomains.forEach(item -> {
                 ProblemAttachTagsDomain domain = new ProblemAttachTagsDomain();
-                domain.setProblemId(model.getId());
+                domain.setProblemId(record.getId());
                 domain.setTagsId(item.getId());
                 attachDomains.add(domain);
             });

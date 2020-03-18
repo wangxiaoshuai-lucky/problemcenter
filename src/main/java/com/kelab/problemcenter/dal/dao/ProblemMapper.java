@@ -31,4 +31,20 @@ public interface ProblemMapper {
      */
     Integer save(@Param("record") ProblemModel model);
 
+    /**
+     * 删除题目
+     */
+    void delete(@Param("ids") List<Integer> ids);
+
+    /**
+     * 保存题目基本信息
+     */
+    void update(@Param("record") ProblemModel model);
+
+
+    /**
+     * 查询 source 列表
+     */
+    List<String> querySource(@Param("limit") Integer limit);
+
 }
