@@ -77,4 +77,15 @@
             #{item}
         </foreach>
     </select>
+
+    <insert id="saveSubmitRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into `Problem_submit_record`
+        (`status`, `user_id`, `problem_id`, `time_used`, `memory_used`,
+         `submit_time`, `compiler_id`, `code_length`, `source`)
+        values
+        (#{record.status, jdbcType=INTEGER}, #{record.userId, jdbcType=INTEGER}, #{record.problemId, jdbcType=INTEGER},
+         #{record.timeUsed, jdbcType=INTEGER}, #{record.memoryUsed, jdbcType=INTEGER},
+        #{record.submitTime, jdbcType=BIGINT}, #{record.compilerId, jdbcType=INTEGER},
+        #{record.codeLength, jdbcType=INTEGER}, #{record.source, jdbcType=VARCHAR})
+    </insert>
 </mapper>

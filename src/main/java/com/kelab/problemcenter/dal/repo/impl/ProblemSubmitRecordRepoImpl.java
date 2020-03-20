@@ -2,7 +2,7 @@ package com.kelab.problemcenter.dal.repo.impl;
 
 import cn.wzy.verifyUtils.annotation.Verify;
 import com.kelab.info.context.Context;
-import com.kelab.info.problemcenter.info.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
@@ -50,6 +50,13 @@ public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
     @Override
     public Integer queryTotal(ProblemSubmitRecordQuery query) {
         return problemSubmitRecordMapper.queryTotal(query);
+    }
+
+    @Override
+    public void saveSubmitRecord(ProblemSubmitRecordDomain record) {
+        ProblemSubmitRecordModel model = ProblemSubmitRecordConvert.domainToModel(record);
+        problemSubmitRecordMapper.saveSubmitRecord(model);
+        record.setId(model.getId());
     }
 
     @Override

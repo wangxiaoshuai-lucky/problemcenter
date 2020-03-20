@@ -1,7 +1,7 @@
 package com.kelab.problemcenter.dal.repo;
 
 import com.kelab.info.context.Context;
-import com.kelab.info.problemcenter.info.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 
@@ -23,5 +23,10 @@ public interface ProblemSubmitRecordRepo {
      * 查询条数
      */
     Integer queryTotal(ProblemSubmitRecordQuery query);
+
+    /**
+     * 保存提交记录
+     */
+    void saveSubmitRecord(ProblemSubmitRecordDomain record);
 
 }

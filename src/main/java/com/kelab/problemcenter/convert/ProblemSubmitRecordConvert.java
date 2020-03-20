@@ -3,7 +3,7 @@ package com.kelab.problemcenter.convert;
 import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
-import com.kelab.problemcenter.result.ProblemSubmitRecordInfo;
+import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import org.springframework.beans.BeanUtils;
 
 public class ProblemSubmitRecordConvert {
@@ -16,6 +16,16 @@ public class ProblemSubmitRecordConvert {
         BeanUtils.copyProperties(model, domain);
         domain.setStatus(ProblemJudgeStatus.valueOf(model.getStatus()));
         return domain;
+    }
+
+    public static ProblemSubmitRecordModel domainToModel(ProblemSubmitRecordDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        ProblemSubmitRecordModel model = new ProblemSubmitRecordModel();
+        BeanUtils.copyProperties(domain, model);
+        model.setStatus(domain.getStatus().value());
+        return model;
     }
 
     public static ProblemSubmitRecordInfo domainToInfo(ProblemSubmitRecordDomain domain) {

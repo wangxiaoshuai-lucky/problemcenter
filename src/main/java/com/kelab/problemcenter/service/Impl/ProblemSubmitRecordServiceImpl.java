@@ -1,13 +1,18 @@
 package com.kelab.problemcenter.service.Impl;
 
 import com.kelab.info.base.PaginationResult;
+import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
-import com.kelab.info.problemcenter.info.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
+import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.problemcenter.constant.enums.CacheBizName;
+import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
+import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
-import com.kelab.problemcenter.result.ProblemSubmitRecordInfo;
+import com.kelab.problemcenter.result.SubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -19,10 +24,17 @@ import java.util.stream.Collectors;
 @Service
 public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordService {
 
+    // 最小间隔时间为 3s
+    private static final long Minimum_Interval_Time = 3000L;
+
     private ProblemSubmitRecordRepo problemSubmitRecordRepo;
 
-    public ProblemSubmitRecordServiceImpl(ProblemSubmitRecordRepo problemSubmitRecordRepo) {
+    private RedisCache redisCache;
+
+    public ProblemSubmitRecordServiceImpl(ProblemSubmitRecordRepo problemSubmitRecordRepo,
+                                          RedisCache redisCache) {
         this.problemSubmitRecordRepo = problemSubmitRecordRepo;
+        this.redisCache = redisCache;
     }
 
     @Override
@@ -35,8 +47,51 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
     }
 
     @Override
+    public SubmitResult submit(Context context, ProblemSubmitRecordDomain record) {
+        fillSubmitRecord(context, record);
+        SubmitResult result = new SubmitResult();
+        // 判断是否频繁操作
+        if (isFrequently(record.getUserId())) {
+            result.setStatus(StatusMsgConstant.SUBMIT_FREQUENTLY_ERROR);
+            return result;
+        }
+        problemSubmitRecordRepo.saveSubmitRecord(record);
+        result.setSubmitId(record.getId());
+        // todo 发送判题任务
+        return result;
+    }
+
+    @Override
     public Integer judgeCount(Context context) {
         return problemSubmitRecordRepo.queryTotal(new ProblemSubmitRecordQuery());
+    }
+
+    /**
+     * 检查是否提交太频繁
+     * 如果正常则记录此次提交时间
+     */
+    private boolean isFrequently(Integer userId) {
+        String cache = redisCache.get(CacheBizName.USER_LAST_SEND_TIME, String.valueOf(userId));
+        if (cache != null) {
+            long lastTime = Long.parseLong(cache);
+            if (System.currentTimeMillis() - lastTime < Minimum_Interval_Time) {
+                return true;
+            }
+        }
+        redisCache.set(CacheBizName.USER_LAST_SEND_TIME, String.valueOf(userId), String.valueOf(System.currentTimeMillis()));
+        return false;
+    }
+
+    /**
+     * 填充新提交信息
+     */
+    private void fillSubmitRecord(Context context, ProblemSubmitRecordDomain record) {
+        record.setUserId(context.getOperatorId());
+        record.setCodeLength(record.getSource().length());
+        record.setStatus(ProblemJudgeStatus.WAITING);
+        record.setTimeUsed(-1);
+        record.setMemoryUsed(-1);
+        record.setSubmitTime(System.currentTimeMillis());
     }
 
     private List<ProblemSubmitRecordInfo> convertToInfo(List<ProblemSubmitRecordDomain> domains) {
