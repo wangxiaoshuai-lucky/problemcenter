@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemSubmitRecordMapper">
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
+        <result column="time_used" property="timeUsed" jdbcType="INTEGER"/>
+        <result column="memory_used" property="memoryUsed" jdbcType="INTEGER"/>
+        <result column="compiler_id" property="compilerId" jdbcType="INTEGER"/>
+        <result column="code_length" property="codeLength" jdbcType="INTEGER"/>
+        <result column="source" property="source" jdbcType="LONGVARCHAR"/>
+        <result column="error_message" property="errorMessage" jdbcType="LONGVARCHAR"/>
+        <result column="submit_time" property="submitTime" jdbcType="BIGINT"/>
+    </resultMap>
+
+
+    <sql id="Sample_Column_List">
+        `id`, `status`, `user_id`, `problem_id`, `time_used`, `memory_used`, `submit_time`, `compiler_id`, `code_length`
+    </sql>
+    <sql id="Detail_Column_List">
+         `source`,`error_message`
+    </sql>
+
+    <sql id="LIMIT_SQL">
+        limit ${(query.page - 1) * query.rows}, ${query.rows}
+    </sql>
+
+    <select id="queryPage" resultMap="BaseResultMap">
+        select
+        <include refid="Sample_Column_List"/>
+        from `Problem_submit_record`
+        where 1 = 1
+        <if test="query.userId != null">
+            and `user_id` = #{query.userId, jdbcType=INTEGER}
+        </if>
+        <if test="query.problemId != null">
+            and `problem_id` = #{query.problemId, jdbcType=INTEGER}
+        </if>
+        <if test="query.status != null">
+            and `status` = #{query.status, jdbcType=INTEGER}
+        </if>
+        <if test="query.compilerId != null">
+            and `compiler_id` = #{query.compilerId, jdbcType=INTEGER}
+        </if>
+        <include refid="LIMIT_SQL"/>
+    </select>
+
+    <select id="queryTotal" resultType="java.lang.Integer">
+        select
+        count(*)
+        from `Problem_submit_record`
+        where 1 = 1
+        <if test="query.userId != null">
+            and `user_id` = #{query.userId, jdbcType=INTEGER}
+        </if>
+        <if test="query.problemId != null">
+            and `problem_id` = #{query.problemId, jdbcType=INTEGER}
+        </if>
+        <if test="query.status != null">
+            and `status` = #{query.status, jdbcType=INTEGER}
+        </if>
+        <if test="query.compilerId != null">
+            and `compiler_id` = #{query.compilerId, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="queryByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Sample_Column_List"/>,
+        <include refid="Detail_Column_List"/>
+        from `Problem_submit_record`
+        where id in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

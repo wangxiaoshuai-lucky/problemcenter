@@ -1,16 +1,14 @@
 package com.kelab.problemcenter.convert;
 
 import com.kelab.info.problemcenter.info.ProblemInfo;
-import com.kelab.info.problemcenter.info.ProblemTagsInfo;
 import com.kelab.problemcenter.constant.enums.ProblemStatus;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.model.ProblemModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProblemConvert {
 
@@ -52,9 +50,7 @@ public class ProblemConvert {
         if (CollectionUtils.isEmpty(domain.getTagsDomains())) {
             info.setTagsInfos(Collections.emptyList());
         } else {
-            List<ProblemTagsInfo> tagsInfos = new ArrayList<>();
-            domain.getTagsDomains().forEach(item -> tagsInfos.add(ProblemTagsConvert.domainToInfo(item)));
-            info.setTagsInfos(tagsInfos);
+            info.setTagsInfos(domain.getTagsDomains().stream().map(ProblemTagsConvert::domainToInfo).collect(Collectors.toList()));
         }
         // 转换ac状态
         if (domain.getUserStatus() != null) {

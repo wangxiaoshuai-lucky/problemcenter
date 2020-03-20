@@ -3,9 +3,7 @@ package com.kelab.problemcenter.service;
 import com.kelab.info.base.PaginationResult;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemInfo;
-import com.kelab.info.problemcenter.info.ProblemTagsInfo;
 import com.kelab.info.problemcenter.query.ProblemQuery;
-import com.kelab.info.problemcenter.query.ProblemTagsQuery;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 
 import java.util.List;

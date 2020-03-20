@@ -6,13 +6,12 @@ import com.kelab.info.base.constant.UserRoleConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemInfo;
 import com.kelab.info.problemcenter.query.ProblemQuery;
-import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.constant.enums.ProblemStatus;
 import com.kelab.problemcenter.convert.ProblemConvert;
 import com.kelab.problemcenter.dal.domain.ProblemAttachTagsDomain;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
-import com.kelab.problemcenter.dal.domain.ProblemTagsDomain;
+import com.kelab.problemcenter.dal.domain.ProblemFilterDomain;
 import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
 import com.kelab.problemcenter.dal.repo.ProblemAttachTagsRepo;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
@@ -20,7 +19,6 @@ import com.kelab.problemcenter.dal.repo.ProblemTagsRepo;
 import com.kelab.problemcenter.dal.repo.ProblemUserMarkRepo;
 import com.kelab.problemcenter.service.ProblemService;
 import com.kelab.problemcenter.support.ContextLogger;
-import com.kelab.problemcenter.support.service.UserCenterService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,20 +40,16 @@ public class ProblemServiceImpl implements ProblemService {
 
     private ProblemAttachTagsRepo problemAttachTagsRepo;
 
-    private UserCenterService userCenterService;
-
     public ProblemServiceImpl(ProblemRepo problemRepo,
                               ContextLogger contextLogger,
                               ProblemTagsRepo problemTagsRepo,
                               ProblemUserMarkRepo problemUserMarkRepo,
-                              ProblemAttachTagsRepo problemAttachTagsRepo,
-                              UserCenterService userCenterService) {
+                              ProblemAttachTagsRepo problemAttachTagsRepo) {
         this.problemRepo = problemRepo;
         this.contextLogger = contextLogger;
         this.problemTagsRepo = problemTagsRepo;
         this.problemUserMarkRepo = problemUserMarkRepo;
         this.problemAttachTagsRepo = problemAttachTagsRepo;
-        this.userCenterService = userCenterService;
     }
 
     @Override
@@ -73,14 +67,15 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void deleteProblems(Context context, List<Integer> probIds) {
-        List<ProblemDomain> oldProblems = problemRepo.queryByIds(probIds, true);
+        List<ProblemDomain> oldProblems = problemRepo.queryByIds(context, probIds,
+                new ProblemFilterDomain(true, true, true));
         problemRepo.delete(probIds);
         contextLogger.info(context, "删除题目%s", JSON.toJSONString(oldProblems));
     }
 
     @Override
     public void updateProblem(Context context, ProblemDomain record) {
-        List<ProblemDomain> oldProblems = problemRepo.queryByIds(Collections.singletonList(record.getId()), false);
+        List<ProblemDomain> oldProblems = problemRepo.queryByIds(context, Collections.singletonList(record.getId()), null);
         problemRepo.update(record);
         contextLogger.info(context, "更新题目，原信息:%s", JSON.toJSONString(oldProblems));
     }
@@ -102,9 +97,10 @@ public class ProblemServiceImpl implements ProblemService {
     public PaginationResult<ProblemInfo> queryPage(Context context, ProblemQuery query) {
         PaginationResult<ProblemInfo> result = new PaginationResult<>();
         List<Integer> totalIds = CommonService.totalIds(query);
+        ProblemFilterDomain filter = new ProblemFilterDomain(true, true, true);
         if (totalIds.size() > 0) {
             // 可以走缓存
-            List<ProblemInfo> problemInfos = fillAndConvertToInfo(context, problemRepo.queryByIds(totalIds, true));
+            List<ProblemInfo> problemInfos = fillAndConvertToInfo(context, problemRepo.queryByIds(context, totalIds, filter));
             result.setTotal(problemInfos.size());
             result.setPagingList(problemInfos);
         } else {
@@ -121,7 +117,7 @@ public class ProblemServiceImpl implements ProblemService {
                     return result;
                 }
             }
-            List<ProblemInfo> problemInfos = fillAndConvertToInfo(context, problemRepo.queryPage(query));
+            List<ProblemInfo> problemInfos = fillAndConvertToInfo(context, problemRepo.queryPage(context, query, filter));
             result.setTotal(problemRepo.queryTotal(query));
             result.setPagingList(problemInfos);
         }
@@ -136,16 +132,10 @@ public class ProblemServiceImpl implements ProblemService {
             return Collections.emptyList();
         }
         filterAccessFields(context, problemDomains);
-        // 填充标签信息
-        fillTagsDomains(context, problemDomains);
-        // 填充出题人信息
-        fillCreatorUserInfo(context, problemDomains);
         // 填充是否 ac 或者 收藏
         fillMarkInfo(context, problemDomains);
         // 转换模型
-        List<ProblemInfo> result = new ArrayList<>(problemDomains.size());
-        problemDomains.forEach(item -> result.add(ProblemConvert.domainToInfo(item)));
-        return result;
+        return problemDomains.stream().map(ProblemConvert::domainToInfo).collect(Collectors.toList());
     }
 
     private void fillMarkInfo(Context context, List<ProblemDomain> domains) {
@@ -185,29 +175,6 @@ public class ProblemServiceImpl implements ProblemService {
                 }
             });
         }
-    }
-
-    private void fillTagsDomains(Context context, List<ProblemDomain> domains) {
-        // 查询关联记录
-        List<Integer> probIds = domains.stream().map(ProblemDomain::getId).collect(Collectors.toList());
-        List<ProblemAttachTagsDomain> attachRecords = problemAttachTagsRepo.queryByProblemIds(probIds);
-        // 有关联记录， 填充tagsInfos
-        if (!CollectionUtils.isEmpty(attachRecords)) {
-            List<Integer> tagsIds = attachRecords.stream().map(ProblemAttachTagsDomain::getTagsId).collect(Collectors.toList());
-            List<ProblemTagsDomain> tagsDomains = problemTagsRepo.queryByIds(tagsIds);
-            Map<Integer, ProblemTagsDomain> tagsMap = tagsDomains.stream().collect(Collectors.toMap(ProblemTagsDomain::getId, obj -> obj, (v1, v2) -> v2));
-            Map<Integer, List<ProblemTagsDomain>> probAndTagsListMap = attachRecords.stream().collect(
-                    Collectors.groupingBy(ProblemAttachTagsDomain::getProblemId, Collectors.mapping(obj -> tagsMap.get(obj.getTagsId()), Collectors.toList())));
-            domains.forEach(item -> item.setTagsDomains(probAndTagsListMap.get(item.getId())));
-        }
-    }
-
-    private void fillCreatorUserInfo(Context context, List<ProblemDomain> domains) {
-        // 填充出题人信息
-        List<Integer> userIds = domains.stream().map(ProblemDomain::getCreatorId).collect(Collectors.toList());
-        List<UserInfo> userInfos = userCenterService.queryByUserIds(context, userIds);
-        Map<Integer, UserInfo> userInfoMap = userInfos.stream().collect(Collectors.toMap(UserInfo::getId, obj -> obj, (v1, v2) -> v2));
-        domains.forEach(item -> item.setCreatorInfo(userInfoMap.get(item.getCreatorId())));
     }
 
     /**

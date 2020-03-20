@@ -11,9 +11,9 @@ import com.kelab.problemcenter.service.ProblemTagsService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProblemTagsServiceImpl implements ProblemTagsService {
@@ -60,8 +60,6 @@ public class ProblemTagsServiceImpl implements ProblemTagsService {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();
         }
-        List<ProblemTagsInfo> infos = new ArrayList<>();
-        domains.forEach(item -> infos.add(ProblemTagsConvert.domainToInfo(item)));
-        return infos;
+        return domains.stream().map(ProblemTagsConvert::domainToInfo).collect(Collectors.toList());
     }
 }

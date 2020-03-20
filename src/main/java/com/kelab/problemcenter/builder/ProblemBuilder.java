@@ -4,11 +4,9 @@ import com.kelab.info.problemcenter.info.ProblemInfo;
 import com.kelab.problemcenter.convert.ProblemTagsConvert;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitInfoDomain;
-import com.kelab.problemcenter.dal.domain.ProblemTagsDomain;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProblemBuilder {
 
@@ -59,9 +57,7 @@ public class ProblemBuilder {
      */
     private static void fillTagsInfos(ProblemDomain domain, ProblemInfo info) {
         if (!CollectionUtils.isEmpty(info.getTagsInfos())) {
-            List<ProblemTagsDomain> tagsDomains = new ArrayList<>(info.getTagsInfos().size());
-            info.getTagsInfos().forEach(item -> tagsDomains.add(ProblemTagsConvert.infoToDomain(item)));
-            domain.setTagsDomains(tagsDomains);
+            domain.setTagsDomains(info.getTagsInfos().stream().map(ProblemTagsConvert::infoToDomain).collect(Collectors.toList()));
         }
     }
 }

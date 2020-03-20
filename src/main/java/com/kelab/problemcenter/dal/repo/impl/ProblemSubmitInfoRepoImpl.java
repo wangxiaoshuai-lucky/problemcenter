@@ -1,6 +1,5 @@
 package com.kelab.problemcenter.dal.repo.impl;
 
-import com.kelab.problemcenter.convert.ProblemConvert;
 import com.kelab.problemcenter.convert.ProblemSubmitInfoConvert;
 import com.kelab.problemcenter.dal.dao.ProblemSubmitInfoMapper;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitInfoDomain;
@@ -10,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProblemSubmitInfoRepoImpl implements ProblemSubmitInfoRepo {
@@ -31,9 +30,7 @@ public class ProblemSubmitInfoRepoImpl implements ProblemSubmitInfoRepo {
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
-        List<ProblemSubmitInfoDomain> result = new ArrayList<>(models.size());
-        models.forEach(item-> result.add(ProblemSubmitInfoConvert.modelToDomain(item)));
-        return result;
+        return models.stream().map(ProblemSubmitInfoConvert::modelToDomain).collect(Collectors.toList());
     }
 
     @Override

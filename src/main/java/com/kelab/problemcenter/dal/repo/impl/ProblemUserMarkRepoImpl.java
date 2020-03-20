@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,17 +63,14 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
     }
 
     private List<Integer> buildTypes(List<MarkType> types) {
-        List<Integer> markTypes = new ArrayList<>(types.size());
-        types.forEach(item -> markTypes.add(item.value()));
-        return markTypes;
+        return types.stream().map(MarkType::value).collect(Collectors.toList());
     }
 
     private List<ProblemUserMarkDomain> convertAndFillTitle(List<ProblemUseMarkModel> models) {
-        List<ProblemUserMarkDomain> result = new ArrayList<>(models.size());
-        models.forEach(item -> result.add(ProblemUserMarkConvert.modelToDomain(item)));
+        List<ProblemUserMarkDomain> result = models.stream().map(ProblemUserMarkConvert::modelToDomain).collect(Collectors.toList());
         // 填充title
         List<Integer> problemIds = result.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toList());
-        List<ProblemDomain> problemDomains = problemRepo.queryByIds(problemIds, false);
+        List<ProblemDomain> problemDomains = problemRepo.queryByIds(null, problemIds, null);
         Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
         result.forEach(item -> item.setTitle(idTitleMap.get(item.getProblemId())));
         return result.stream().filter(item -> StringUtils.isNotBlank(item.getTitle())).collect(Collectors.toList());

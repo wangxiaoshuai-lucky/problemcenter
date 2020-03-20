@@ -1,19 +1,20 @@
 package com.kelab.problemcenter.dal.repo.impl;
 
 import cn.wzy.verifyUtils.annotation.Verify;
+import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemQuery;
+import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.convert.ProblemConvert;
 import com.kelab.problemcenter.dal.dao.ProblemMapper;
-import com.kelab.problemcenter.dal.domain.ProblemAttachTagsDomain;
-import com.kelab.problemcenter.dal.domain.ProblemDomain;
-import com.kelab.problemcenter.dal.domain.ProblemSubmitInfoDomain;
-import com.kelab.problemcenter.dal.domain.ProblemTagsDomain;
+import com.kelab.problemcenter.dal.domain.*;
 import com.kelab.problemcenter.dal.model.ProblemModel;
 import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemAttachTagsRepo;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitInfoRepo;
+import com.kelab.problemcenter.dal.repo.ProblemTagsRepo;
+import com.kelab.problemcenter.support.service.UserCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -34,21 +35,29 @@ public class ProblemRepoImpl implements ProblemRepo {
 
     private ProblemAttachTagsRepo problemAttachTagsRepo;
 
+    private ProblemTagsRepo problemTagsRepo;
+
     private RedisCache redisCache;
+
+    private UserCenterService userCenterService;
 
     @Autowired(required = false)
     public ProblemRepoImpl(ProblemMapper problemMapper,
                            ProblemSubmitInfoRepo problemSubmitInfoRepo,
                            ProblemAttachTagsRepo problemAttachTagsRepo,
-                           RedisCache redisCache) {
+                           ProblemTagsRepo problemTagsRepo,
+                           RedisCache redisCache,
+                           UserCenterService userCenterService) {
         this.problemMapper = problemMapper;
         this.problemSubmitInfoRepo = problemSubmitInfoRepo;
         this.problemAttachTagsRepo = problemAttachTagsRepo;
+        this.problemTagsRepo = problemTagsRepo;
         this.redisCache = redisCache;
+        this.userCenterService = userCenterService;
     }
 
     @Override
-    public List<ProblemDomain> queryByIds(List<Integer> ids, boolean withSubmitInfo) {
+    public List<ProblemDomain> queryByIds(Context context, List<Integer> ids, ProblemFilterDomain filter) {
         List<ProblemModel> models = redisCache.cacheList(CacheBizName.PROBLEM_INFO, ids, ProblemModel.class, missKeyList -> {
             List<ProblemModel> dbModels = problemMapper.queryByIds(missKeyList);
             if (CollectionUtils.isEmpty(dbModels)) {
@@ -56,13 +65,13 @@ public class ProblemRepoImpl implements ProblemRepo {
             }
             return dbModels.stream().collect(Collectors.toMap(ProblemModel::getId, obj -> obj, (v1, v2) -> v2));
         });
-        return convertAndFillSubmitInfo(models, withSubmitInfo);
+        return convertAndFillSubmitInfo(context, models, filter);
     }
 
     @Override
     @Verify(numberLimit = {"query.page [1, 100000]", "query.rows [1, 100000]"})
-    public List<ProblemDomain> queryPage(ProblemQuery query) {
-        return convertAndFillSubmitInfo(problemMapper.queryPage(query), true);
+    public List<ProblemDomain> queryPage(Context context, ProblemQuery query, ProblemFilterDomain filter) {
+        return convertAndFillSubmitInfo(context, problemMapper.queryPage(query), filter);
     }
 
     @Override
@@ -126,23 +135,48 @@ public class ProblemRepoImpl implements ProblemRepo {
         }
     }
 
-    private List<ProblemDomain> convertAndFillSubmitInfo(List<ProblemModel> models, boolean withSubmitInfo) {
+    private List<ProblemDomain> convertAndFillSubmitInfo(Context context, List<ProblemModel> models, ProblemFilterDomain filter) {
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
-        List<ProblemDomain> result = new ArrayList<>(models.size());
-        models.forEach(item -> {
-            ProblemDomain single = ProblemConvert.modelToDomain(item);
-            result.add(single);
-        });
+        List<ProblemDomain> result = models.stream().map(ProblemConvert::modelToDomain).collect(Collectors.toList());
         // 填充提交信息
-        if (withSubmitInfo) {
+        if (filter != null && filter.isWithSubmitInfo()) {
             List<Integer> probIds = result.stream().map(ProblemDomain::getId).collect(Collectors.toList());
             List<ProblemSubmitInfoDomain> submitInfoDomains = problemSubmitInfoRepo.queryByProbIds(probIds);
             Map<Integer, ProblemSubmitInfoDomain> submitMap = submitInfoDomains
                     .stream().collect(Collectors.toMap(ProblemSubmitInfoDomain::getProblemId, obj -> obj, (v1, v2) -> v2));
             result.forEach(item -> item.setSubmitInfoDomain(submitMap.get(item.getId())));
         }
+        if (filter != null && filter.isWithTagsInfo()) {
+            fillTagsDomains(context, result);
+        }
+        if (filter != null && filter.isWithCreatorInfo()) {
+            fillCreatorUserInfo(context, result);
+        }
         return result;
+    }
+
+    private void fillTagsDomains(Context context, List<ProblemDomain> domains) {
+        // 查询关联记录
+        List<Integer> probIds = domains.stream().map(ProblemDomain::getId).collect(Collectors.toList());
+        List<ProblemAttachTagsDomain> attachRecords = problemAttachTagsRepo.queryByProblemIds(probIds);
+        // 有关联记录， 填充tagsInfos
+        if (!CollectionUtils.isEmpty(attachRecords)) {
+            List<Integer> tagsIds = attachRecords.stream().map(ProblemAttachTagsDomain::getTagsId).collect(Collectors.toList());
+            List<ProblemTagsDomain> tagsDomains = problemTagsRepo.queryByIds(tagsIds);
+            Map<Integer, ProblemTagsDomain> tagsMap = tagsDomains.stream().collect(Collectors.toMap(ProblemTagsDomain::getId, obj -> obj, (v1, v2) -> v2));
+            Map<Integer, List<ProblemTagsDomain>> probAndTagsListMap = attachRecords.stream().collect(
+                    Collectors.groupingBy(ProblemAttachTagsDomain::getProblemId, Collectors.mapping(obj -> tagsMap.get(obj.getTagsId()), Collectors.toList())));
+            domains.forEach(item -> item.setTagsDomains(probAndTagsListMap.get(item.getId())));
+        }
+    }
+
+    private void fillCreatorUserInfo(Context context, List<ProblemDomain> domains) {
+        // 填充出题人信息
+        List<Integer> userIds = domains.stream().map(ProblemDomain::getCreatorId).collect(Collectors.toList());
+        List<UserInfo> userInfos = userCenterService.queryByUserIds(context, userIds);
+        Map<Integer, UserInfo> userInfoMap = userInfos.stream().collect(Collectors.toMap(UserInfo::getId, obj -> obj, (v1, v2) -> v2));
+        domains.forEach(item -> item.setCreatorInfo(userInfoMap.get(item.getCreatorId())));
     }
 }

@@ -67,8 +67,6 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();
         }
-        List<ProblemUserMarkInfo> infos = new ArrayList<>(domains.size());
-        domains.forEach(item -> infos.add(ProblemUserMarkConvert.domainToVo(item)));
-        return infos;
+        return domains.stream().map(ProblemUserMarkConvert::domainToVo).collect(Collectors.toList());
     }
 }

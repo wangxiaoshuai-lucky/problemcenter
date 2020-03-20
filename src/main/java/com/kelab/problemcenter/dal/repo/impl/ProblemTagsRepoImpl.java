@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -90,8 +89,6 @@ public class ProblemTagsRepoImpl implements ProblemTagsRepo {
         if (CollectionUtils.isEmpty(problemTagsModels)) {
             return Collections.emptyList();
         }
-        List<ProblemTagsDomain> domains = new ArrayList<>(problemTagsModels.size());
-        problemTagsModels.forEach(item -> domains.add(ProblemTagsConvert.modelToDomain(item)));
-        return domains;
+        return problemTagsModels.stream().map(ProblemTagsConvert::modelToDomain).collect(Collectors.toList());
     }
 }

@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProblemAttachTagsRepoImpl implements ProblemAttachTagsRepo {
@@ -57,17 +57,13 @@ public class ProblemAttachTagsRepoImpl implements ProblemAttachTagsRepo {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();
         }
-        List<ProblemAttachTagsModel> models = new ArrayList<>();
-        domains.forEach(item -> models.add(ProblemAttachTagsConvert.domainToModel(item)));
-        return models;
+        return domains.stream().map(ProblemAttachTagsConvert::domainToModel).collect(Collectors.toList());
     }
 
     private List<ProblemAttachTagsDomain> convertToDomain(List<ProblemAttachTagsModel> models) {
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
-        List<ProblemAttachTagsDomain> domains = new ArrayList<>();
-        models.forEach(item -> domains.add(ProblemAttachTagsConvert.modelToDomain(item)));
-        return domains;
+        return models.stream().map(ProblemAttachTagsConvert::modelToDomain).collect(Collectors.toList());
     }
 }
