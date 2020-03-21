@@ -46,6 +46,17 @@ public class ProblemSubmitRecordController {
     }
 
     /**
+     * 查询提交细节：源码和错误信息
+     */
+    @GetMapping("/submit/detail.do")
+    @Verify(notNull = {"context.operatorId", "context.operatorRoleId", "submitId"})
+    public JsonAndModel querySubmitDetail(Context context, Integer submitId) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(problemSubmitRecordService.querySubmitDetail(context, submitId))
+                .build();
+    }
+
+    /**
      * 查询总提交量
      */
     @GetMapping("/submit/count.do")
