@@ -1,6 +1,7 @@
 package com.kelab.problemcenter.dal.repo.impl;
 
 import cn.wzy.verifyUtils.annotation.Verify;
+import com.alibaba.fastjson.JSON;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemQuery;
 import com.kelab.info.usercenter.info.UserInfo;
@@ -15,6 +16,7 @@ import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitInfoRepo;
 import com.kelab.problemcenter.dal.repo.ProblemTagsRepo;
 import com.kelab.problemcenter.support.service.UserCenterService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -113,11 +115,13 @@ public class ProblemRepoImpl implements ProblemRepo {
 
     @Override
     public List<String> querySource(Integer limit) {
-        List<String> cacheData = (List<String>) redisCache.cacheOne(CacheBizName.PROBLEM_SOURCE, limit, List.class, missKey -> problemMapper.querySource(missKey));
-        if (CollectionUtils.isEmpty(cacheData)) {
+        String cacheData = redisCache.cacheOne(
+                CacheBizName.PROBLEM_SOURCE, limit,
+                String.class, missKey -> JSON.toJSONString(problemMapper.querySource(missKey)));
+        if (StringUtils.isBlank(cacheData)) {
             return Collections.emptyList();
         }
-        return cacheData;
+        return JSON.parseArray(cacheData, String.class);
     }
 
     private void saveAttachTags(ProblemDomain record) {
