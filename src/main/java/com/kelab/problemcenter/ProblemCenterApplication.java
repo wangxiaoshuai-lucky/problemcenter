@@ -10,7 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableEurekaClient
 @EnableVerify
-@MapperScan(basePackages = "com.kelab.problemcenter.repo.dao")
+@MapperScan(basePackages = "com.kelab.problemcenter.dal.dao")
 @EnableFeignClients(basePackages = "com.kelab.problemcenter.support.facade")
 public class ProblemCenterApplication {
 
