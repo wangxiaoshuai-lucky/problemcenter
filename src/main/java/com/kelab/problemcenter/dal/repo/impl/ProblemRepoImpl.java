@@ -2,6 +2,7 @@ package com.kelab.problemcenter.dal.repo.impl;
 
 import cn.wzy.verifyUtils.annotation.Verify;
 import com.alibaba.fastjson.JSON;
+import com.kelab.info.base.constant.UserRoleConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemQuery;
 import com.kelab.info.usercenter.info.UserInfo;
@@ -158,7 +159,17 @@ public class ProblemRepoImpl implements ProblemRepo {
         if (filter != null && filter.isWithCreatorInfo()) {
             fillCreatorUserInfo(context, result);
         }
+        filterAccessFields(context, result);
         return result;
+    }
+
+    /**
+     * 过滤非管理员能看的字段
+     */
+    private void filterAccessFields(Context context, List<ProblemDomain> problemDomains) {
+        if (!context.getOperatorRoleId().equals(UserRoleConstant.ADMIN) && !context.getOperatorRoleId().equals(UserRoleConstant.TEACHER)) {
+            problemDomains.forEach(item -> item.setSpecialJudgeSource(null));
+        }
     }
 
     private void fillTagsDomains(Context context, List<ProblemDomain> domains) {

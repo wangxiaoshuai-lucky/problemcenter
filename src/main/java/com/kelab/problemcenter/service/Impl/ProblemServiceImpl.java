@@ -131,7 +131,6 @@ public class ProblemServiceImpl implements ProblemService {
         if (CollectionUtils.isEmpty(problemDomains)) {
             return Collections.emptyList();
         }
-        filterAccessFields(context, problemDomains);
         // 填充是否 ac 或者 收藏
         fillMarkInfo(context, problemDomains);
         // 转换模型
@@ -177,12 +176,5 @@ public class ProblemServiceImpl implements ProblemService {
         }
     }
 
-    /**
-     * 过滤非管理员能看的字段
-     */
-    private void filterAccessFields(Context context, List<ProblemDomain> problemDomains) {
-        if (!context.getOperatorRoleId().equals(UserRoleConstant.ADMIN) && !context.getOperatorRoleId().equals(UserRoleConstant.TEACHER)) {
-            problemDomains.forEach(item -> item.setSpecialJudgeSource(null));
-        }
-    }
+
 }
