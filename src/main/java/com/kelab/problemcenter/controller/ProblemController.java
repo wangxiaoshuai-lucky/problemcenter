@@ -47,9 +47,9 @@ public class ProblemController {
      * 删除题目
      */
     @DeleteMapping("/problem.do")
-    @Verify(sizeLimit = "pids [1, 200]")
-    public JsonAndModel delete(Context context, List<Integer> pids) {
-        problemService.deleteProblems(context, pids);
+    @Verify(sizeLimit = "ids [1, 200]")
+    public JsonAndModel delete(Context context, @RequestParam("ids") List<Integer> ids) {
+        problemService.deleteProblems(context, ids);
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
 

@@ -56,7 +56,7 @@ public class ProblemTagsController {
      */
     @DeleteMapping("/tags.do")
     @Verify(sizeLimit = "ids [1, 200]")
-    public JsonAndModel delete(Context context, List<Integer> ids) {
+    public JsonAndModel delete(Context context,@RequestParam("ids") List<Integer> ids) {
         problemTagsService.delete(context, ids);
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
