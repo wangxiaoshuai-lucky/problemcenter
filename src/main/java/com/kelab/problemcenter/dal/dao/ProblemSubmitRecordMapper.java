@@ -1,6 +1,7 @@
 package com.kelab.problemcenter.dal.dao;
 
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -30,4 +31,14 @@ public interface ProblemSubmitRecordMapper {
      * 保存提交记录
      */
     void saveSubmitRecord(@Param("record") ProblemSubmitRecordModel record);
+
+    /**
+     * 获取每个小时的submit数
+     */
+    List<OnlineStatisticResult> countSubmitDay(@Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
+    /**
+     * 获取每个小时的ac数
+     */
+    List<OnlineStatisticResult> countAcDay(@Param("startTime") Long startTime, @Param("endTime") Long endTime);
 }

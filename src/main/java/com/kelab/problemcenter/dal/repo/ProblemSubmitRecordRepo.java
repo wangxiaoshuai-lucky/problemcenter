@@ -2,10 +2,12 @@ package com.kelab.problemcenter.dal.repo;
 
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProblemSubmitRecordRepo {
 
@@ -28,5 +30,11 @@ public interface ProblemSubmitRecordRepo {
      * 保存提交记录
      */
     void saveSubmitRecord(ProblemSubmitRecordDomain record);
+
+    /**
+     * 获取每个小时的ac和submit
+     * 走缓存，endTime当前的整点时间, startTime昨天的整点时间
+     */
+    Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime);
 
 }

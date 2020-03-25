@@ -1,8 +1,11 @@
 package com.kelab.problemcenter.dal.repo.impl;
 
 import cn.wzy.verifyUtils.annotation.Verify;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +80,34 @@ public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
                     return dbModels.stream().collect(Collectors.toMap(ProblemSubmitRecordModel::getId, obj -> obj, (v1, v2) -> v2));
                 });
         return convertAndFillProblemAndUserInfo(context, models, filter);
+    }
+
+    @Override
+    public Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime) {
+        String cacheKey = "DAY::" + startTime + "::" + endTime;
+        String cacheOne = redisCache.cacheOne(CacheBizName.PROBLEM_SUBMIT_RECORD, cacheKey,
+                String.class, missKey -> JSON.toJSONString(doCountDay(startTime, endTime)));
+        return JSON.parseObject(cacheOne,
+                new TypeReference<Map<String, OnlineStatisticResult>>() {
+                });
+    }
+
+    /**
+     * 合并两个集合，一个集合的submitAll为0，一个submitAc为0
+     */
+    private Map<String, OnlineStatisticResult> doCountDay(long startTime, long endTime) {
+        List<OnlineStatisticResult> allResult = new ArrayList<>();
+        allResult.addAll(problemSubmitRecordMapper.countAcDay(startTime, endTime));
+        allResult.addAll(problemSubmitRecordMapper.countSubmitDay(startTime, endTime));
+        return allResult.stream().collect(Collectors.toMap(OnlineStatisticResult::getTime,
+                obj -> obj, (v1, v2) -> {
+                    if (v1.getSubmitAc().equals(0)) {
+                        v1.setSubmitAc(v2.getSubmitAc());
+                    } else if (v1.getSubmitAll().equals(0)) {
+                        v1.setSubmitAll(v2.getSubmitAll());
+                    }
+                    return v1;
+                }));
     }
 
     /**

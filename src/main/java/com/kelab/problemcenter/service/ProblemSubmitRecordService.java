@@ -5,8 +5,12 @@ import com.kelab.info.base.SingleResult;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.result.SubmitResult;
+
+import java.util.List;
+import java.util.Map;
 
 public interface ProblemSubmitRecordService {
 
@@ -30,4 +34,10 @@ public interface ProblemSubmitRecordService {
      * 累计判题个数
      */
     Integer judgeCount(Context context);
+
+    /**
+     * 获取每个小时的ac和submit
+     * 走缓存，endTime当前的整点时间, startTime昨天的整点时间
+     */
+    Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime);
 }

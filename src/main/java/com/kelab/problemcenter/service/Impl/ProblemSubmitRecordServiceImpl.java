@@ -7,6 +7,7 @@ import com.kelab.info.base.constant.UserRoleConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
@@ -21,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,6 +81,11 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
     @Override
     public Integer judgeCount(Context context) {
         return problemSubmitRecordRepo.queryTotal(new ProblemSubmitRecordQuery());
+    }
+
+    @Override
+    public Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime) {
+        return problemSubmitRecordRepo.countDay(startTime, endTime);
     }
 
     /**

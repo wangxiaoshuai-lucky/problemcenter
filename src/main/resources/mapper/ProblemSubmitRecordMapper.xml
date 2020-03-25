@@ -78,6 +78,7 @@
         </foreach>
     </select>
 
+
     <insert id="saveSubmitRecord" useGeneratedKeys="true" keyProperty="id">
         insert into `Problem_submit_record`
         (`status`, `user_id`, `problem_id`, `time_used`, `memory_used`,
@@ -88,4 +89,36 @@
         #{record.submitTime, jdbcType=BIGINT}, #{record.compilerId, jdbcType=INTEGER},
         #{record.codeLength, jdbcType=INTEGER}, #{record.source, jdbcType=VARCHAR})
     </insert>
+
+    <resultMap id="OnlineStatisticResultMap" type="com.kelab.info.usercenter.info.OnlineStatisticResult">
+        <result column="time" property="time" jdbcType="VARCHAR"/>
+        <result column="total_login" property="totalLogin" jdbcType="INTEGER"/>
+        <result column="submit_ac" property="submitAc" jdbcType="INTEGER"/>
+        <result column="submit_all" property="submitAll" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="countSubmitDay" resultMap="OnlineStatisticResultMap">
+       SELECT
+        FROM_UNIXTIME(`submit_time` / 1000, '%H') AS `time`,
+		count(*) AS submit_all
+        FROM
+        `Problem_submit_record`
+        WHERE
+        `submit_time` BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+        FROM_UNIXTIME(`submit_time` / 1000, '%H')
+    </select>
+
+    <select id="countAcDay" resultMap="OnlineStatisticResultMap">
+       SELECT
+        FROM_UNIXTIME(`submit_time` / 1000, '%H') AS `time`,
+		count(*) AS submit_ac
+        FROM
+        `Problem_submit_record`
+        WHERE
+        `status` = 0
+        and `submit_time` BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+        FROM_UNIXTIME(`submit_time` / 1000, '%H')
+    </select>
 </mapper>
