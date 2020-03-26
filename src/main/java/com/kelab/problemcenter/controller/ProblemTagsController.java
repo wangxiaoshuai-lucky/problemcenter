@@ -25,6 +25,7 @@ public class ProblemTagsController {
      * 分页查询标签
      */
     @GetMapping("/tags.do")
+    @Verify(numberLimit = {"query.page [1, 100000]", "query.rows [1, 100000]"})
     public JsonAndModel queryPage(Context context, ProblemTagsQuery query) {
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
                 .data(problemTagsService.queryPage(context, query))

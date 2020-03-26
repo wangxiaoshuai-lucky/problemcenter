@@ -39,9 +39,9 @@ public class ProblemUserMarkController {
      */
     @GetMapping("/user/problem/collect.do")
     @Verify(notNull = "userId")
-    public JsonAndModel collect(Context context, Integer userId) {
+    public JsonAndModel collect(Context context) {
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
-                .data(problemUserMarkService.collect(context, userId))
+                .data(problemUserMarkService.collect(context))
                 .build();
     }
 

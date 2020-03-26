@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemNoteMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemNoteModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="text" property="text" jdbcType="LONGVARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
+        <result column="post_time" property="postTime" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `title`, `text`,`user_id`,`problem_id`,`post_time`
+    </sql>
+
+    <sql id="LIMIT_SQL">
+        limit ${(query.page - 1) * query.rows}, ${query.rows}
+    </sql>
+
+    <select id="queryPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_note`
+        where 1 = 1
+        <if test="query.userId != null">
+            and `user_id` = #{query.userId, jdbcType=INTEGER}
+        </if>
+        <if test="query.problemId != null">
+            and `problem_id` = #{query.problemId, jdbcType=INTEGER}
+        </if>
+        <include refid="LIMIT_SQL"/>
+    </select>
+
+    <select id="queryTotal" resultType="java.lang.Integer">
+        select
+        count(*)
+        from `Problem_user_note`
+        where 1 = 1
+        <if test="query.userId != null">
+            and `user_id`= #{query.userId, jdbcType=INTEGER}
+        </if>
+        <if test="query.problemId != null">
+            and `problem_id` = #{query.problemId, jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="queryByUserIdAndProbId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_note`
+        where 1 = 1
+        and `user_id` = #{userId, jdbcType=INTEGER}
+        and `problem_id` = #{probId, jdbcType=INTEGER}
+        limit 1
+    </select>
+
+    <select id="queryByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_note`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        insert into `Problem_user_note` (`title`, `text`,
+        `post_time`,
+        `user_id`, `problem_id`)
+        values (#{record.title,jdbcType=VARCHAR},
+         #{record.text,jdbcType=LONGVARCHAR},
+        #{record.postTime,jdbcType=BIGINT},
+        #{record.userId,jdbcType=INTEGER},
+        #{record.problemId,jdbcType=INTEGER})
+    </insert>
+
+    <update id="update">
+        update `Problem_user_note`
+        <set>
+            <if test="record.title != null">
+                `title` = #{record.title,jdbcType=VARCHAR},
+            </if>
+            <if test="record.text != null">
+                `text` = #{record.text,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.postTime != null">
+                `post_time` = #{record.postTime,jdbcType=BIGINT},
+            </if>
+        </set>
+        where `id` = #{record.id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="delete">
+        delete from `Problem_user_note`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>

@@ -44,8 +44,8 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
     }
 
     @Override
-    public List<ProblemUserMarkInfo> collect(Context context, Integer userId) {
-        List<ProblemUserMarkDomain> collects = problemUserMarkRepo.queryByUserIdAndTypes(userId, Collections.singletonList(MarkType.COLLECT));
+    public List<ProblemUserMarkInfo> collect(Context context) {
+        List<ProblemUserMarkDomain> collects = problemUserMarkRepo.queryByUserIdAndTypes(context.getOperatorId(), Collections.singletonList(MarkType.COLLECT));
         return convertDomainsToInfos(collects);
     }
 
@@ -56,10 +56,10 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
                 Collections.singletonList(MarkType.COLLECT));
         if (CollectionUtils.isEmpty(old)) {
             // 添加收藏
-            problemUserMarkRepo.save(record.getUserId(), record.getProblemId(), MarkType.COLLECT);
+            problemUserMarkRepo.save(context.getOperatorId(), record.getProblemId(), MarkType.COLLECT);
         } else {
             // 删除收藏
-            problemUserMarkRepo.delete(record.getUserId(), record.getProblemId(), MarkType.COLLECT);
+            problemUserMarkRepo.delete(context.getOperatorId(), record.getProblemId(), MarkType.COLLECT);
         }
     }
 
