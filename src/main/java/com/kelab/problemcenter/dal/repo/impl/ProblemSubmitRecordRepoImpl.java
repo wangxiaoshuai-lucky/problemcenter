@@ -8,6 +8,7 @@ import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.info.usercenter.info.UserInfo;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
+import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
 import com.kelab.problemcenter.dal.dao.ProblemSubmitRecordMapper;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
@@ -17,6 +18,7 @@ import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
 import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
+import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.support.service.UserCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -30,7 +32,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
-
 
     private ProblemSubmitRecordMapper problemSubmitRecordMapper;
 
@@ -80,6 +81,11 @@ public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
                     return dbModels.stream().collect(Collectors.toMap(ProblemSubmitRecordModel::getId, obj -> obj, (v1, v2) -> v2));
                 });
         return convertAndFillProblemAndUserInfo(context, models, filter);
+    }
+
+    @Override
+    public MilestoneResult queryUserStatus(Integer userId, ProblemJudgeStatus status, Integer num) {
+        return problemSubmitRecordMapper.queryUserStatus(userId, status.value(), num);
     }
 
     @Override

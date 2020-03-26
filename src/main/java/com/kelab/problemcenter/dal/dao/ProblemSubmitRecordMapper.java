@@ -3,6 +3,7 @@ package com.kelab.problemcenter.dal.dao;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
+import com.kelab.problemcenter.result.MilestoneResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,6 +16,13 @@ public interface ProblemSubmitRecordMapper {
      * 分页查询, 查询除了source和errorMsg之外的信息
      */
     List<ProblemSubmitRecordModel> queryPage(@Param("query") ProblemSubmitRecordQuery query);
+
+    /**
+     * 查询用户对应status的指定位置提交
+     * 通过problemId去重
+     */
+    MilestoneResult queryUserStatus(@Param("userId") Integer userId, @Param("status") Integer status,
+                                    @Param("num") Integer num);
 
 
     /**

@@ -7,6 +7,7 @@ import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
+import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
 
 import java.util.List;
@@ -40,4 +41,9 @@ public interface ProblemSubmitRecordService {
      * 走缓存，endTime当前的整点时间, startTime昨天的整点时间
      */
     Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime);
+
+    /** 查询用户的ac题目的里程碑
+     * 1，10，20，50，100，150，200，300，400 ....
+     */
+    List<MilestoneResult> queryMilestone(Context context);
 }

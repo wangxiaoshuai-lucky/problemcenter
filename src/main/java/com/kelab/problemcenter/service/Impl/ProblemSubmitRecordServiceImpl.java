@@ -11,15 +11,19 @@ import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
+import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 import com.kelab.problemcenter.dal.redis.RedisCache;
+import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
+import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +32,24 @@ import java.util.stream.Collectors;
 @Service
 public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordService {
 
+    private static final int[] AC_MILESTONE = new int[]{
+            1, 10, 20, 50, 100, 150, 200, 300, 400, 600, 800, 1000, 1300, 1600, 2000, 2500
+    };
+
     // 最小间隔时间为 3s
     private static final long Minimum_Interval_Time = 3000L;
 
     private ProblemSubmitRecordRepo problemSubmitRecordRepo;
 
+    private ProblemRepo problemRepo;
+
     private RedisCache redisCache;
 
     public ProblemSubmitRecordServiceImpl(ProblemSubmitRecordRepo problemSubmitRecordRepo,
+                                          ProblemRepo problemRepo,
                                           RedisCache redisCache) {
         this.problemSubmitRecordRepo = problemSubmitRecordRepo;
+        this.problemRepo = problemRepo;
         this.redisCache = redisCache;
     }
 
@@ -87,6 +99,51 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
     public Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime) {
         return problemSubmitRecordRepo.countDay(startTime, endTime);
     }
+
+    @Override
+    public List<MilestoneResult> queryMilestone(Context context) {
+        List<MilestoneResult> results = new ArrayList<>();
+        for (Integer num : AC_MILESTONE) {
+            MilestoneResult single = problemSubmitRecordRepo.queryUserStatus(context.getOperatorId(), ProblemJudgeStatus.AC, num);
+            if (single != null) {
+                results.add(single);
+            } else {
+                // 最新的提交ac记录
+                single = getLastAcRecord(context);
+                if (single != null) {
+                    results.add(single);
+                }
+                break;
+            }
+        }
+        // fillTitle
+        fillTitle(results);
+        return results;
+    }
+
+    private MilestoneResult getLastAcRecord(Context context) {
+        ProblemSubmitRecordQuery query = new ProblemSubmitRecordQuery();
+        query.setStatus(ProblemJudgeStatus.AC.value());
+        query.setUserId(context.getOperatorId());
+        Integer integer = problemSubmitRecordRepo.queryTotal(query);
+        if (integer == 0) {
+            return null;
+        }
+        return problemSubmitRecordRepo.queryUserStatus(context.getOperatorId(), ProblemJudgeStatus.AC, integer);
+    }
+
+    private void fillTitle(List<MilestoneResult> milestoneResults) {
+        // 填充title
+        if (CollectionUtils.isEmpty(milestoneResults)) {
+            return;
+        }
+        List<ProblemDomain> problemDomains = problemRepo.queryByIds(null,
+                milestoneResults.stream().map(MilestoneResult::getProblemId).collect(Collectors.toList()),
+                null);
+        Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
+        milestoneResults.forEach(item -> item.setProblemTitle(idTitleMap.get(item.getProblemId())));
+    }
+
 
     /**
      * 检查是否提交太频繁

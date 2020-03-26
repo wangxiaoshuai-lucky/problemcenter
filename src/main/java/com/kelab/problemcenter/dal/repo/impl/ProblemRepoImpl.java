@@ -154,7 +154,7 @@ public class ProblemRepoImpl implements ProblemRepo {
             result.forEach(item -> item.setSubmitInfoDomain(submitMap.get(item.getId())));
         }
         if (filter != null && filter.isWithTagsInfo()) {
-            fillTagsDomains(context, result);
+            fillTagsDomains(result);
         }
         if (filter != null && filter.isWithCreatorInfo()) {
             fillCreatorUserInfo(context, result);
@@ -167,12 +167,12 @@ public class ProblemRepoImpl implements ProblemRepo {
      * 过滤非管理员能看的字段
      */
     private void filterAccessFields(Context context, List<ProblemDomain> problemDomains) {
-        if (!context.getOperatorRoleId().equals(UserRoleConstant.ADMIN) && !context.getOperatorRoleId().equals(UserRoleConstant.TEACHER)) {
+        if (context == null || (!context.getOperatorRoleId().equals(UserRoleConstant.ADMIN) && !context.getOperatorRoleId().equals(UserRoleConstant.TEACHER))) {
             problemDomains.forEach(item -> item.setSpecialJudgeSource(null));
         }
     }
 
-    private void fillTagsDomains(Context context, List<ProblemDomain> domains) {
+    private void fillTagsDomains(List<ProblemDomain> domains) {
         // 查询关联记录
         List<Integer> probIds = domains.stream().map(ProblemDomain::getId).collect(Collectors.toList());
         List<ProblemAttachTagsDomain> attachRecords = problemAttachTagsRepo.queryByProblemIds(probIds);

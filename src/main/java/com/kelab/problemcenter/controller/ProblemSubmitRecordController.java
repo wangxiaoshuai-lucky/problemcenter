@@ -65,4 +65,15 @@ public class ProblemSubmitRecordController {
                 .data(problemSubmitRecordService.judgeCount(context))
                 .build();
     }
+
+    /**
+     * 查询里程碑
+     */
+    @GetMapping("/user/submit/milestone.do")
+    @Verify(notNull = "context.operatorId")
+    public JsonAndModel queryMilestone(Context context) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(problemSubmitRecordService.queryMilestone(context))
+                .build();
+    }
 }
