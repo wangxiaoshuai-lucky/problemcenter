@@ -19,14 +19,12 @@ import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
 import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
+import com.kelab.problemcenter.result.UserSubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -119,6 +117,33 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
         // fillTitle
         fillTitle(results);
         return results;
+    }
+
+    @Override
+    public List<UserSubmitResult> userSubmit(Context context, Integer userId) {
+        Calendar calendar = Calendar.getInstance();
+        long endTime = calendar.getTimeInMillis();
+        calendar.add(Calendar.DATE, -7);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        long startTime = calendar.getTimeInMillis();
+        Map<Integer, Integer> map = problemSubmitRecordRepo.queryCountWeek(userId, startTime, endTime).stream().collect(Collectors.toMap(UserSubmitResult::getName, UserSubmitResult::getValue));
+        List<UserSubmitResult> result = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            UserSubmitResult single = new UserSubmitResult();
+            int time = calendar.get(Calendar.DAY_OF_WEEK);
+            single.setName(time);
+            Integer value = map.get(time);
+            if (value != null) {
+                single.setValue(value);
+            } else {
+                single.setValue(0);
+            }
+            result.add(single);
+            calendar.add(Calendar.DAY_OF_WEEK, 1);
+        }
+        return result;
     }
 
     private MilestoneResult getLastAcRecord(Context context) {

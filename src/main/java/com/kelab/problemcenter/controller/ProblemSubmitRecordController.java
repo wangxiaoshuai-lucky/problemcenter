@@ -76,4 +76,15 @@ public class ProblemSubmitRecordController {
                 .data(problemSubmitRecordService.queryMilestone(context))
                 .build();
     }
+
+    /**
+     * 一周内提交次数
+     */
+    @GetMapping("/submit/static.do")
+    @Verify(notNull = "*")
+    public JsonAndModel queryStatic(Context context, Integer userId) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(problemSubmitRecordService.userSubmit(context, userId))
+                .build();
+    }
 }

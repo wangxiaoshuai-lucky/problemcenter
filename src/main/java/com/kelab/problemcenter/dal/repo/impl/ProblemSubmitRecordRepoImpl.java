@@ -19,6 +19,7 @@ import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
 import com.kelab.problemcenter.result.MilestoneResult;
+import com.kelab.problemcenter.result.UserSubmitResult;
 import com.kelab.problemcenter.support.service.UserCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -86,6 +87,11 @@ public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
     @Override
     public MilestoneResult queryUserStatus(Integer userId, ProblemJudgeStatus status, Integer num) {
         return problemSubmitRecordMapper.queryUserStatus(userId, status.value(), num);
+    }
+
+    @Override
+    public List<UserSubmitResult> queryCountWeek(Integer userId, Long startTime, Long endTime) {
+        return problemSubmitRecordMapper.countWeek(userId, startTime, endTime);
     }
 
     @Override

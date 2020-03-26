@@ -4,6 +4,7 @@ import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
 import com.kelab.problemcenter.result.MilestoneResult;
+import com.kelab.problemcenter.result.UserSubmitResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -49,4 +50,10 @@ public interface ProblemSubmitRecordMapper {
      * 获取每个小时的ac数
      */
     List<OnlineStatisticResult> countAcDay(@Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
+    /**
+     * 获取个人7天内的提交情况
+     */
+    List<UserSubmitResult> countWeek(@Param("userId") Integer userId,
+                                     @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 }

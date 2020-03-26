@@ -123,6 +123,23 @@
         FROM_UNIXTIME(`submit_time` / 1000, '%H')
     </select>
 
+    <resultMap id="UserSubmitResult" type="com.kelab.problemcenter.result.UserSubmitResult">
+        <result column="name" property="name" jdbcType="INTEGER"/>
+        <result column="value" property="value" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="countWeek" resultMap="UserSubmitResult">
+       SELECT
+        FROM_UNIXTIME(`submit_time` / 1000, '%w') AS `name`,
+		count(*) AS `value`
+        FROM
+        `Problem_submit_record`
+        WHERE `user_id` = #{userId}
+        and `submit_time` BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+        FROM_UNIXTIME(`submit_time` / 1000, '%w')
+    </select>
+
     <!--ac多少题的时间节点-->
     <resultMap id="userSubmitTimeStatistic" type="com.kelab.problemcenter.result.MilestoneResult">
         <result column="num" property="num" jdbcType="INTEGER"/>

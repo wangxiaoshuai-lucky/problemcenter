@@ -9,6 +9,7 @@ import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
+import com.kelab.problemcenter.result.UserSubmitResult;
 
 import java.util.List;
 import java.util.Map;
@@ -46,4 +47,9 @@ public interface ProblemSubmitRecordService {
      * 1，10，20，50，100，150，200，300，400 ....
      */
     List<MilestoneResult> queryMilestone(Context context);
+
+    /**
+     * 提交情况
+     */
+    List<UserSubmitResult> userSubmit(Context context, Integer userId);
 }

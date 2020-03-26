@@ -8,6 +8,7 @@ import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 import com.kelab.problemcenter.dal.model.ProblemSubmitRecordModel;
 import com.kelab.problemcenter.result.MilestoneResult;
+import com.kelab.problemcenter.result.UserSubmitResult;
 
 import java.util.List;
 import java.util.Map;
@@ -46,5 +47,10 @@ public interface ProblemSubmitRecordRepo {
      * 通过problemId去重
      */
     MilestoneResult queryUserStatus(Integer userId, ProblemJudgeStatus status, Integer num);
+
+    /**
+     * 获取一段时间的提交情况
+     */
+    List<UserSubmitResult> queryCountWeek(Integer userId,Long startTime, Long endTime);
 
 }
