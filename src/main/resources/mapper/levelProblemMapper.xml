@@ -36,7 +36,7 @@
         select
         <include refid="Base_Column_List"/>
         from `Level_problem`
-        where `level_id` &gt; #{levelId, jdbcType=INTEGER}
+        where `level_id` &lt; #{levelId, jdbcType=INTEGER}
     </select>
 
     <insert id="saveList">

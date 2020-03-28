@@ -102,7 +102,6 @@ public class LevelServiceImpl implements LevelService {
             LevelProblemUserResult.Detail detail = new LevelProblemUserResult.Detail();
             detail.setName(grade.getName());
             detail.setSuccess(false);
-            detail.setStatus(0);
             result.getDetails().add(detail);
         }
         // 收集所有的题目id
@@ -111,12 +110,19 @@ public class LevelServiceImpl implements LevelService {
         List<LevelProblemDomain> blowProblems = levelRepo.queryAllBelowTheLevel(levelId);
         List<Integer> blowProIds = blowProblems.stream().map(LevelProblemDomain::getProId).collect(Collectors.toList());
         proIds.addAll(blowProIds);
+        if (CollectionUtils.isEmpty(proIds)) {
+            // 未添加题目
+            result.getDetails().forEach(item -> item.setStatus(2));
+            return result;
+        }
         List<ProblemUserMarkDomain> acs = problemUserMarkRepo.queryByUserIdAndProIdsAndTypes(context.getOperatorId(), proIds, Collections.singletonList(MarkType.AC));
         Set<Integer> acSet = acs.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toSet());
         // 检测之前的题目是否ac
         if (!CollectionUtils.isEmpty(blowProIds)) {
             List<Integer> acProIds = blowProIds.stream().filter(acSet::contains).collect(Collectors.toList());
             if (acProIds.size() < blowProIds.size()) {// 没有ac完
+                // 不能看 没到等级
+                result.getDetails().forEach(item -> item.setStatus(0));
                 return result;
             }
         }
