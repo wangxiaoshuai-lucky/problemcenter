@@ -5,11 +5,16 @@ import com.kelab.info.base.JsonAndModel;
 import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.LevelInfo;
+import com.kelab.info.problemcenter.info.LevelProblemInfo;
 import com.kelab.problemcenter.convert.LevelConvert;
+import com.kelab.problemcenter.dal.domain.LevelProblemDomain;
 import com.kelab.problemcenter.service.LevelService;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 public class LevelController {
@@ -59,6 +64,29 @@ public class LevelController {
     @Verify(sizeLimit = "ids [1, 200]")
     public JsonAndModel deleteLevel(Context context, @RequestParam("ids") List<Integer> ids) {
         levelService.deleteLevel(context, ids);
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
+    }
+
+    /**
+     * 查看某个段位的题目
+     */
+    @GetMapping("/queryProblems.do")
+    @Verify(notNull = "*")
+    public JsonAndModel queryProblems(Context context, Integer levelId) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(levelService.queryAllProblem(context, levelId))
+                .build();
+    }
+
+    /**
+     * 插入段位题目
+     */
+    @PostMapping("/levelProblem.do")
+    @Verify(notNull = "*")
+    public JsonAndModel insertProblem(Context context, @RequestBody Set<LevelProblemInfo> records) {
+        if (!CollectionUtils.isEmpty(records)) {
+            levelService.insertProblem(context, records.stream().map(LevelConvert::infoToDomain).collect(Collectors.toList()));
+        }
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
 }

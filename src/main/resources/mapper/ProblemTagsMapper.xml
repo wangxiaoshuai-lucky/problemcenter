@@ -40,7 +40,7 @@
         select
         <include refid="Base_Column_List"/>
         from `Problem_tags`
-        where `name` like concat(#{name, jdbcType=VARCHAR}, '%')
+        where `name` = #{name, jdbcType=VARCHAR}
     </select>
 
     <select id="queryByIds" resultMap="BaseResultMap">

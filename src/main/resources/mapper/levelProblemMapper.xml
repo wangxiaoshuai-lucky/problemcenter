@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.LevelProblemMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.LevelProblemModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="pro_id" property="proId" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="INTEGER"/>
+        <result column="level_id" property="levelId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `pro_id`, `grade`, `level_id`
+    </sql>
+    <delete id="deleteByLevelId">
+        delete from `Level_problem`
+        where `level_id` in
+        <foreach collection="levelIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <delete id="deleteByLevelIdAndGrade">
+        delete from `Level_problem`
+        where `level_id` = #{levelId, jdbcType=INTEGER}
+        and `grade` = #{grade, jdbcType=INTEGER}
+    </delete>
+
+    <select id="queryByLevelId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Level_problem`
+        where `level_id` = #{levelId, jdbcType=INTEGER}
+    </select>
+
+    <insert id="saveList">
+        insert into `Level_problem`
+        (`pro_id`, `grade`, `level_id`) values
+        <foreach collection="records" item="item" index="index" separator=",">
+            (#{item.proId, jdbcType=INTEGER}, #{item.grade, jdbcType=INTEGER}, #{item.levelId, jdbcType=INTEGER})
+        </foreach>
+    </insert>
+</mapper>

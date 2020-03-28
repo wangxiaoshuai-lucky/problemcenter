@@ -162,11 +162,10 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
         if (CollectionUtils.isEmpty(milestoneResults)) {
             return;
         }
-        List<ProblemDomain> problemDomains = problemRepo.queryByIds(null,
+        Map<Integer, ProblemDomain> problemMap = problemRepo.queryProblemMapByIds(null,
                 milestoneResults.stream().map(MilestoneResult::getProblemId).collect(Collectors.toList()),
                 null);
-        Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
-        milestoneResults.forEach(item -> item.setProblemTitle(idTitleMap.get(item.getProblemId())));
+        milestoneResults.forEach(item -> item.setProblemTitle(problemMap.getOrDefault(item.getProblemId(), new ProblemDomain()).getTitle()));
     }
 
 

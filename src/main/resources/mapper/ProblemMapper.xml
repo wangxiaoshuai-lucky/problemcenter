@@ -144,7 +144,7 @@
             <if test="record.hint != null and record.hint != ''">
                 `Problem`.`hint` = #{record.hint}
             </if>
-            <if test="record.time_limit != null">
+            <if test="record.timeLimit != null">
                 `Problem`.`time_limit` = #{record.timeLimit}
             </if>
             <if test="record.memoryLimit != null">

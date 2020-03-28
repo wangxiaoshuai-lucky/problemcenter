@@ -70,9 +70,8 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
         List<ProblemUserMarkDomain> result = models.stream().map(ProblemUserMarkConvert::modelToDomain).collect(Collectors.toList());
         // 填充title
         List<Integer> problemIds = result.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toList());
-        List<ProblemDomain> problemDomains = problemRepo.queryByIds(null, problemIds, null);
-        Map<Integer, String> idTitleMap = problemDomains.stream().collect(Collectors.toMap(ProblemDomain::getId, ProblemDomain::getTitle, (v1, v2) -> v2));
-        result.forEach(item -> item.setTitle(idTitleMap.get(item.getProblemId())));
+        Map<Integer, ProblemDomain> problemMap = problemRepo.queryProblemMapByIds(null, problemIds, null);
+        result.forEach(item -> item.setTitle(problemMap.getOrDefault(item.getProblemId(), new ProblemDomain()).getTitle()));
         return result.stream().filter(item -> StringUtils.isNotBlank(item.getTitle())).collect(Collectors.toList());
     }
 }

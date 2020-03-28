@@ -72,6 +72,12 @@ public class ProblemRepoImpl implements ProblemRepo {
     }
 
     @Override
+    public Map<Integer, ProblemDomain> queryProblemMapByIds(Context context, List<Integer> ids, ProblemFilterDomain filter) {
+        return this.queryByIds(context, ids, filter)
+                .stream().collect(Collectors.toMap(ProblemDomain::getId, obj -> obj, (v1, v2) -> v2));
+    }
+
+    @Override
     @Verify(numberLimit = {"query.page [1, 100000]", "query.rows [1, 100000]"})
     public List<ProblemDomain> queryPage(Context context, ProblemQuery query, ProblemFilterDomain filter) {
         return convertAndFillSubmitInfo(context, problemMapper.queryPage(query), filter);

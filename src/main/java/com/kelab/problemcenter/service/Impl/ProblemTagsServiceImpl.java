@@ -43,7 +43,10 @@ public class ProblemTagsServiceImpl implements ProblemTagsService {
 
     @Override
     public void save(Context context, ProblemTagsDomain record) {
-        problemTagsRepo.save(record);
+        List<ProblemTagsDomain> tagsDomains = problemTagsRepo.queryByName(record.getName());
+        if (CollectionUtils.isEmpty(tagsDomains)) {
+            problemTagsRepo.save(record);
+        }
     }
 
     @Override
