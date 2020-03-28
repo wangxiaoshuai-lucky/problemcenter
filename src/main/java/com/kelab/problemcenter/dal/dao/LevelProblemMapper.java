@@ -15,6 +15,11 @@ public interface LevelProblemMapper {
     List<LevelProblemModel> queryByLevelId(@Param("levelId") Integer levelId);
 
     /**
+     * 查询之前段位的所有题目
+     */
+    List<LevelProblemModel> queryAllBelowTheLevel(@Param("levelId") Integer levelId);
+
+    /**
      * 添加一个小段位的题目
      */
     void saveList(@Param("records") List<LevelProblemModel> records);

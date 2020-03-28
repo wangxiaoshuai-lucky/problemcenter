@@ -6,7 +6,7 @@ import com.kelab.problemcenter.dal.domain.LevelDomain;
 import com.kelab.problemcenter.dal.domain.LevelProblemDomain;
 import com.kelab.problemcenter.dal.model.LevelModel;
 import com.kelab.problemcenter.dal.model.LevelProblemModel;
-import com.kelab.problemcenter.result.level.LevelProblemResult;
+import com.kelab.problemcenter.result.level.ProblemResult;
 import org.springframework.beans.BeanUtils;
 
 public class LevelConvert {
@@ -75,11 +75,11 @@ public class LevelConvert {
         return domain;
     }
 
-    public static LevelProblemResult.ProblemResult domainToResult(LevelProblemDomain domain) {
+    public static ProblemResult domainToResult(LevelProblemDomain domain) {
         if (domain == null) {
             return null;
         }
-        LevelProblemResult.ProblemResult result = new LevelProblemResult.ProblemResult();
+        ProblemResult result = new ProblemResult();
         BeanUtils.copyProperties(domain, result);
         return result;
     }

@@ -36,6 +36,11 @@ public interface LevelRepo {
      */
     List<LevelProblemDomain> queryLevelProblemByLevelId(Integer levelId);
 
+    /**
+     * 查询段位关联的所有题目
+     */
+    List<LevelProblemDomain> queryAllBelowTheLevel(Integer levelId);
+
 
     /**
      * 插入题目

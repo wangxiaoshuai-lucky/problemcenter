@@ -77,7 +77,14 @@ public class LevelRepoImpl implements LevelRepo {
     @Override
     public List<LevelProblemDomain> queryLevelProblemByLevelId(Integer levelId) {
         String cacheObj = redisCache.cacheOne(CacheBizName.LEVEL_PROBLEM, levelId,
-                String.class, missKey -> JSON.toJSONString(levelProblemMapper.queryByLevelId(missKey)));
+                String.class, missKey -> JSON.toJSONString(levelProblemMapper.queryByLevelId(levelId)));
+        return convertToLevelProblemDomain(JSON.parseArray(cacheObj, LevelProblemModel.class));
+    }
+
+    @Override
+    public List<LevelProblemDomain> queryAllBelowTheLevel(Integer levelId) {
+        String cacheObj = redisCache.cacheOne(CacheBizName.LEVEL_PROBLEM, "below::" + levelId,
+                String.class, missKey -> JSON.toJSONString(levelProblemMapper.queryAllBelowTheLevel(levelId)));
         return convertToLevelProblemDomain(JSON.parseArray(cacheObj, LevelProblemModel.class));
     }
 
@@ -88,6 +95,8 @@ public class LevelRepoImpl implements LevelRepo {
         levelProblemMapper.saveList(collect);
         // 删除这个段位的题目缓存
         redisCache.delete(CacheBizName.LEVEL_PROBLEM, collect.get(0).getLevelId());
+        // 删除段位之前的题目缓存
+        redisCache.delete(CacheBizName.LEVEL_PROBLEM, "below::" + collect.get(0).getLevelId());
     }
 
     private List<LevelDomain> convertToLevelDomain(List<LevelModel> levelModels) {

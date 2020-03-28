@@ -5,7 +5,8 @@ import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.LevelInfo;
 import com.kelab.problemcenter.dal.domain.LevelDomain;
 import com.kelab.problemcenter.dal.domain.LevelProblemDomain;
-import com.kelab.problemcenter.result.level.LevelProblemResult;
+import com.kelab.problemcenter.result.level.LevelProblemAdminResult;
+import com.kelab.problemcenter.result.level.LevelProblemUserResult;
 
 import java.util.List;
 
@@ -33,8 +34,16 @@ public interface LevelService {
 
     /**
      * 通过段位id查询所有小段位的题目
+     * 后台调用
      */
-    LevelProblemResult queryAllProblem(Context context, Integer levelId);
+    LevelProblemAdminResult queryAllProblem(Context context, Integer levelId);
+
+
+    /**
+     * 通过段位id查询所有小段位的题目，
+     * 过滤掉是否ac通过，训练调用
+     */
+    LevelProblemUserResult queryAllGradeInfo(Context context, Integer levelId);
 
     /**
      * 插入题目

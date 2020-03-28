@@ -68,13 +68,24 @@ public class LevelController {
     }
 
     /**
-     * 查看某个段位的题目
+     * 查看某个段位的题目 管理员端
      */
     @GetMapping("/queryProblems.do")
     @Verify(notNull = "*")
     public JsonAndModel queryProblems(Context context, Integer levelId) {
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
                 .data(levelService.queryAllProblem(context, levelId))
+                .build();
+    }
+
+    /**
+     * 查询每个小段位的题目列表 用户端
+     */
+    @GetMapping("/levelProblem.do")
+    @Verify(notNull = "*")
+    public JsonAndModel queryLevelProblems(Context context, Integer levelId) {
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
+                .data(levelService.queryAllGradeInfo(context, levelId))
                 .build();
     }
 

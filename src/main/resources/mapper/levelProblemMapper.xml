@@ -32,6 +32,12 @@
         from `Level_problem`
         where `level_id` = #{levelId, jdbcType=INTEGER}
     </select>
+    <select id="queryAllBelowTheLevel" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Level_problem`
+        where `level_id` &gt; #{levelId, jdbcType=INTEGER}
+    </select>
 
     <insert id="saveList">
         insert into `Level_problem`
