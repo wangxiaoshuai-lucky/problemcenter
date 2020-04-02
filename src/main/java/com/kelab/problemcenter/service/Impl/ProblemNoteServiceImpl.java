@@ -26,7 +26,7 @@ public class ProblemNoteServiceImpl implements ProblemNoteService {
     @Override
     public List<ProblemNoteInfo> queryPage(Context context, ProblemNoteQuery query) {
         query.setUserId(context.getOperatorId());
-        return convertToTagsInfo(problemNoteRepo.queryPage(query));
+        return convertToNoteInfo(problemNoteRepo.queryPage(query));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ProblemNoteServiceImpl implements ProblemNoteService {
         problemNoteRepo.delete(deleteIds);
     }
 
-    private List<ProblemNoteInfo> convertToTagsInfo(List<ProblemNoteDomain> domains) {
+    private List<ProblemNoteInfo> convertToNoteInfo(List<ProblemNoteDomain> domains) {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();
         }
