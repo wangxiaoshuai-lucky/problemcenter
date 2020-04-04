@@ -3,9 +3,11 @@ package com.kelab.problemcenter.controller;
 import cn.wzy.verifyUtils.annotation.Verify;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.service.ProblemService;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
+import com.kelab.problemcenter.service.ProblemUserMarkService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,10 +22,14 @@ public class InnerController {
 
     private ProblemService problemService;
 
+    private ProblemUserMarkService problemUserMarkService;
+
     public InnerController(ProblemSubmitRecordService problemSubmitRecordService,
-                           ProblemService problemService) {
+                           ProblemService problemService,
+                           ProblemUserMarkService problemUserMarkService) {
         this.problemSubmitRecordService = problemSubmitRecordService;
         this.problemService = problemService;
+        this.problemUserMarkService = problemUserMarkService;
     }
 
     /**
@@ -44,5 +50,20 @@ public class InnerController {
     @Verify(sizeLimit = "ids [1, 10000]")
     public List<ProblemInfo> queryByIds(Context context, @RequestParam("ids") List<Integer> ids) {
         return problemService.queryByIds(context, ids);
+    }
+
+    /**
+     * 查询用户在截止时间之前指定题目的ac记录
+     */
+    @GetMapping("/inner/queryUserProbAc")
+    @Verify(
+            notNull = "endTime",
+            sizeLimit = {"userIds [1, 10000]", "probIds [1, 10000]"}
+    )
+    public List<ProblemUserMarkInfo> queryByUserIdsAndProbIdsAndEndTime(Context context,
+                                                                        @RequestParam("userIds") List<Integer> userIds,
+                                                                        @RequestParam("probIds") List<Integer> probIds,
+                                                                        @RequestParam("endTime") Long endTime) {
+        return problemUserMarkService.queryByUserIdsAndProbIdsAndEndTime(context, userIds, probIds, endTime);
     }
 }

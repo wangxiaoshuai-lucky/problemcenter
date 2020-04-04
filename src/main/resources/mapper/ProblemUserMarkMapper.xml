@@ -42,12 +42,29 @@
             #{item}
         </foreach>
     </select>
+    <select id="queryByUserIdsAndProbIdsAndEndTime" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_user_mark`
+        where `user_id` in
+        <foreach collection="userIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and `problem_id` in
+        <foreach collection="probIds" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and `mark_type` = 1
+        and `mark_time` &lt; #{endTime}
+    </select>
 
     <insert id="save">
         insert into `Problem_user_mark`
-        (`user_id`, `problem_id`, `mark_type`)
+        (`user_id`, `problem_id`, `mark_type`, `mark_time`)
         values
-        (#{userId, jdbcType=INTEGER}, #{probId, jdbcType=INTEGER}, #{type, jdbcType=INTEGER})
+        (#{userId, jdbcType=INTEGER}, #{probId, jdbcType=INTEGER}, #{type, jdbcType=INTEGER}, unix_timestamp(now()) * 1000)
     </insert>
 
     <delete id="delete">

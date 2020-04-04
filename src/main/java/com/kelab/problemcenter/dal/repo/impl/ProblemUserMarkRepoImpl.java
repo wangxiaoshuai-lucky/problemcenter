@@ -62,11 +62,19 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
         problemUserMarkMapper.delete(userId, problemId, markType.value());
     }
 
+    @Override
+    public List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, Long endTime) {
+        return convertAndFillTitle(problemUserMarkMapper.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, endTime));
+    }
+
     private List<Integer> buildTypes(List<MarkType> types) {
         return types.stream().map(MarkType::value).collect(Collectors.toList());
     }
 
     private List<ProblemUserMarkDomain> convertAndFillTitle(List<ProblemUseMarkModel> models) {
+        if (CollectionUtils.isEmpty(models)) {
+            return Collections.emptyList();
+        }
         List<ProblemUserMarkDomain> result = models.stream().map(ProblemUserMarkConvert::modelToDomain).collect(Collectors.toList());
         // 填充title
         List<Integer> problemIds = result.stream().map(ProblemUserMarkDomain::getProblemId).collect(Collectors.toList());

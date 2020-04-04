@@ -14,4 +14,9 @@ public interface ProblemUserMarkService {
     List<ProblemUserMarkInfo> collect(Context context);
 
     void deleteOrSave(Context context, ProblemUserMarkInfo record);
+
+    /**
+     * 查询用户在截止时间之前指定题目的ac记录
+     */
+    List<ProblemUserMarkInfo> queryByUserIdsAndProbIdsAndEndTime(Context context, List<Integer> userIds, List<Integer> probIds, Long endTime);
 }

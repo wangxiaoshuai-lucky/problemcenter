@@ -63,6 +63,11 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
         }
     }
 
+    @Override
+    public List<ProblemUserMarkInfo> queryByUserIdsAndProbIdsAndEndTime(Context context, List<Integer> userIds, List<Integer> probIds, Long endTime) {
+        return convertDomainsToInfos(problemUserMarkRepo.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, endTime));
+    }
+
     private List<ProblemUserMarkInfo> convertDomainsToInfos(List<ProblemUserMarkDomain> domains) {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();

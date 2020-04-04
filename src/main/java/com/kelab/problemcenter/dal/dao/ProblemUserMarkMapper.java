@@ -1,6 +1,5 @@
 package com.kelab.problemcenter.dal.dao;
 
-import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.dal.model.ProblemUseMarkModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,4 +16,6 @@ public interface ProblemUserMarkMapper {
     void save(@Param("userId") Integer userId, @Param("probId") Integer probId, @Param("type") Integer type);
 
     void delete(@Param("userId") Integer userId, @Param("probId") Integer probId, @Param("type") Integer type);
+
+    List<ProblemUseMarkModel> queryByUserIdsAndProbIdsAndEndTime(@Param("userIds")List<Integer> userIds, @Param("probIds")List<Integer> probIds,@Param("endTime") Long endTime);
 }

@@ -15,4 +15,6 @@ public interface ProblemUserMarkRepo {
     void save(Integer userId, Integer problemId, MarkType markType);
 
     void delete(Integer userId, Integer problemId, MarkType markType);
+
+    List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, Long endTime);
 }
