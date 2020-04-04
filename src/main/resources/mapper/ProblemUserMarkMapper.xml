@@ -7,10 +7,11 @@
         <result column="user_id" property="userId" jdbcType="INTEGER"/>
         <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
         <result column="mark_type" property="markType" jdbcType="INTEGER"/>
+        <result column="mark_time" property="markTime" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`, `user_id`, `problem_id`, `mark_type`
+        `id`, `user_id`, `problem_id`, `mark_type`, `mark_time`
     </sql>
 
     <select id="queryByUserIdAndTypes" resultMap="BaseResultMap">

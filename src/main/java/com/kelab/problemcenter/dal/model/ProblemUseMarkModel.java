@@ -10,7 +10,9 @@ public class ProblemUseMarkModel {
 
     private Integer markType;
 
-    public Integer getId() {
+    private Long markTime;
+
+   public Integer getId() {
         return id;
     }
 
@@ -40,5 +42,13 @@ public class ProblemUseMarkModel {
 
     public void setMarkType(Integer markType) {
         this.markType = markType;
+    }
+
+    public Long getMarkTime() {
+        return markTime;
+    }
+
+    public void setMarkTime(Long markTime) {
+        this.markTime = markTime;
     }
 }

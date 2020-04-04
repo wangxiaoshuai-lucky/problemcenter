@@ -14,6 +14,8 @@ public class ProblemUserMarkDomain {
 
     private MarkType markType;
 
+    private Long markTime;
+
     public Integer getId() {
         return id;
     }
@@ -52,5 +54,13 @@ public class ProblemUserMarkDomain {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Long getMarkTime() {
+        return markTime;
+    }
+
+    public void setMarkTime(Long markTime) {
+        this.markTime = markTime;
     }
 }
