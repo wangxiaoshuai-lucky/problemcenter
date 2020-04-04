@@ -41,7 +41,7 @@ public interface ProblemSubmitRecordService {
      * 获取每个小时的ac和submit
      * 走缓存，endTime当前的整点时间, startTime昨天的整点时间
      */
-    Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime);
+    Map<String, OnlineStatisticResult> countDay(Context context,Long startTime, Long endTime);
 
     /** 查询用户的ac题目的里程碑
      * 1，10，20，50，100，150，200，300，400 ....

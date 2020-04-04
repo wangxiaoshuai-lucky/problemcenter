@@ -124,6 +124,13 @@ public class ProblemServiceImpl implements ProblemService {
         return result;
     }
 
+    @Override
+    public List<ProblemInfo> queryByIds(Context context, List<Integer> ids) {
+        return problemRepo.queryByIds(context, ids, null)
+                .stream().map(ProblemConvert::domainToInfo)
+                .collect(Collectors.toList());
+    }
+
     /**
      * 填充关联 tags 信息、出题人信息、是否 ac 或者 收藏
      */

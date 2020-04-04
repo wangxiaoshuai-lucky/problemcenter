@@ -17,6 +17,11 @@ public interface ProblemService {
     PaginationResult<ProblemInfo> queryPage(Context context, ProblemQuery query);
 
     /**
+     * 查询列表，指获取基本信息
+     */
+    List<ProblemInfo> queryByIds(Context context, List<Integer> ids);
+
+    /**
      * 添加题目
      * 如果是管理员 直接审核通过
      * 如果是老师 待审核状态

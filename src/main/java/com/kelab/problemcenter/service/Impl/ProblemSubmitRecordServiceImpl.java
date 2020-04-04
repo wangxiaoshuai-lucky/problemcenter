@@ -94,7 +94,7 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
     }
 
     @Override
-    public Map<String, OnlineStatisticResult> countDay(Long startTime, Long endTime) {
+    public Map<String, OnlineStatisticResult> countDay(Context context, Long startTime, Long endTime) {
         return problemSubmitRecordRepo.countDay(startTime, endTime);
     }
 
