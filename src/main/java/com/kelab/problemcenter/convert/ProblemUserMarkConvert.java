@@ -13,9 +13,7 @@ public class ProblemUserMarkConvert {
             return null;
         }
         ProblemUserMarkDomain domain = new ProblemUserMarkDomain();
-        domain.setId(model.getId());
-        domain.setUserId(model.getUserId());
-        domain.setProblemId(model.getProblemId());
+        BeanUtils.copyProperties(model, domain);
         domain.setMarkType(MarkType.valueOf(model.getMarkType()));
         return domain;
     }
