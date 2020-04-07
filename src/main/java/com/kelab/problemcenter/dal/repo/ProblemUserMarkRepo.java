@@ -16,5 +16,5 @@ public interface ProblemUserMarkRepo {
 
     void delete(Integer userId, Integer problemId, MarkType markType);
 
-    List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, Long endTime);
+    List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, List<MarkType> types, Long endTime);
 }

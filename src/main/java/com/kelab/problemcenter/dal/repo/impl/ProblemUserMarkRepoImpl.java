@@ -63,8 +63,8 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
     }
 
     @Override
-    public List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, Long endTime) {
-        return convertAndFillTitle(problemUserMarkMapper.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, endTime));
+    public List<ProblemUserMarkDomain> queryByUserIdsAndProbIdsAndEndTime(List<Integer> userIds, List<Integer> probIds, List<MarkType> types, Long endTime) {
+        return convertAndFillTitle(problemUserMarkMapper.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, buildTypes(types), endTime));
     }
 
     private List<Integer> buildTypes(List<MarkType> types) {

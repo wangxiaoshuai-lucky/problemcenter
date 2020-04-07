@@ -16,6 +16,8 @@ public class ProblemUserMarkDomain {
 
     private Long markTime;
 
+    private Integer submitId;
+
     public Integer getId() {
         return id;
     }
@@ -62,5 +64,13 @@ public class ProblemUserMarkDomain {
 
     public void setMarkTime(Long markTime) {
         this.markTime = markTime;
+    }
+
+    public Integer getSubmitId() {
+        return submitId;
+    }
+
+    public void setSubmitId(Integer submitId) {
+        this.submitId = submitId;
     }
 }

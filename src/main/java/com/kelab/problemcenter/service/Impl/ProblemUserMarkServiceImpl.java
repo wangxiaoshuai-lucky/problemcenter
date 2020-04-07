@@ -2,9 +2,13 @@ package com.kelab.problemcenter.service.Impl;
 
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInnerInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
+import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
 import com.kelab.problemcenter.convert.ProblemUserMarkConvert;
+import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
+import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
 import com.kelab.problemcenter.dal.repo.ProblemUserMarkRepo;
 import com.kelab.problemcenter.service.ProblemUserMarkService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +21,15 @@ import java.util.stream.Collectors;
 @Service
 public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
 
-    private final ProblemUserMarkRepo problemUserMarkRepo;
+    private ProblemUserMarkRepo problemUserMarkRepo;
+
+    private ProblemSubmitRecordRepo problemSubmitRecordRepo;
 
     @Autowired(required = false)
-    public ProblemUserMarkServiceImpl(ProblemUserMarkRepo problemUserMarkRepo) {
+    public ProblemUserMarkServiceImpl(ProblemUserMarkRepo problemUserMarkRepo,
+                                      ProblemSubmitRecordRepo problemSubmitRecordRepo) {
         this.problemUserMarkRepo = problemUserMarkRepo;
+        this.problemSubmitRecordRepo = problemSubmitRecordRepo;
     }
 
     @Override
@@ -63,15 +71,39 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
         }
     }
 
-    @Override
-    public List<ProblemUserMarkInfo> queryByUserIdsAndProbIdsAndEndTime(Context context, List<Integer> userIds, List<Integer> probIds, Long endTime) {
-        return convertDomainsToInfos(problemUserMarkRepo.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, endTime));
-    }
-
     private List<ProblemUserMarkInfo> convertDomainsToInfos(List<ProblemUserMarkDomain> domains) {
         if (CollectionUtils.isEmpty(domains)) {
             return Collections.emptyList();
         }
-        return domains.stream().map(ProblemUserMarkConvert::domainToVo).collect(Collectors.toList());
+        return domains.stream().map(ProblemUserMarkConvert::domainToInfo).collect(Collectors.toList());
     }
+
+    @Override
+    public List<ProblemUserMarkInnerInfo> queryByUserIdsAndProbIdsAndEndTime(Context context, List<Integer> userIds, List<Integer> probIds, Long endTime) {
+        // 获取ac记录
+        return convertDomainsToInnerInfos(problemUserMarkRepo.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, Collections.singletonList(MarkType.AC), endTime));
+    }
+
+    @Override
+    public List<ProblemUserMarkInnerInfo> queryByUserIdsAndProbIdsAndEndTimeWithSubmitInfo(Context context, List<Integer> userIds, List<Integer> probIds, Long endTime) {
+        // 获取ac和挑战记录
+        List<ProblemUserMarkInnerInfo> infos = convertDomainsToInnerInfos(problemUserMarkRepo.queryByUserIdsAndProbIdsAndEndTime(userIds, probIds, Arrays.asList(MarkType.AC, MarkType.CHALLENGING), endTime));
+        if (CollectionUtils.isEmpty(infos)) {
+            return infos;
+        }
+        Map<Integer, ProblemSubmitRecordDomain> submitMap = problemSubmitRecordRepo.queryByIds(context, infos.stream().map(ProblemUserMarkInnerInfo::getSubmitId).collect(Collectors.toList()), null)
+                .stream().collect(Collectors.toMap(ProblemSubmitRecordDomain::getId, obj -> obj, (v1, v2) -> v2));
+        // 填充提交信息
+        infos.forEach(item -> item.setSubmitRef(ProblemSubmitRecordConvert.domainToInfo(submitMap.get(item.getSubmitId()))));
+        return infos;
+    }
+
+    private List<ProblemUserMarkInnerInfo> convertDomainsToInnerInfos(List<ProblemUserMarkDomain> domains) {
+        if (CollectionUtils.isEmpty(domains)) {
+            return Collections.emptyList();
+        }
+        return domains.stream().map(ProblemUserMarkConvert::domainToInnerInfo).collect(Collectors.toList());
+    }
+
+
 }

@@ -17,5 +17,8 @@ public interface ProblemUserMarkMapper {
 
     void delete(@Param("userId") Integer userId, @Param("probId") Integer probId, @Param("type") Integer type);
 
-    List<ProblemUseMarkModel> queryByUserIdsAndProbIdsAndEndTime(@Param("userIds")List<Integer> userIds, @Param("probIds")List<Integer> probIds,@Param("endTime") Long endTime);
+    List<ProblemUseMarkModel> queryByUserIdsAndProbIdsAndEndTime(@Param("userIds")List<Integer> userIds,
+                                                                 @Param("probIds")List<Integer> probIds,
+                                                                 @Param("types")List<Integer> types,
+                                                                 @Param("endTime") Long endTime);
 }

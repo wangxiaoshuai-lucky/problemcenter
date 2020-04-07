@@ -1,6 +1,7 @@
 package com.kelab.problemcenter.convert;
 
 import com.kelab.info.problemcenter.info.ProblemUserMarkInfo;
+import com.kelab.info.problemcenter.info.ProblemUserMarkInnerInfo;
 import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
 import com.kelab.problemcenter.dal.model.ProblemUseMarkModel;
@@ -18,11 +19,20 @@ public class ProblemUserMarkConvert {
         return domain;
     }
 
-    public static ProblemUserMarkInfo domainToVo(ProblemUserMarkDomain domain) {
+    public static ProblemUserMarkInfo domainToInfo(ProblemUserMarkDomain domain) {
         if (domain == null) {
             return null;
         }
         ProblemUserMarkInfo info = new ProblemUserMarkInfo();
+        BeanUtils.copyProperties(domain, info);
+        return info;
+    }
+
+    public static ProblemUserMarkInnerInfo domainToInnerInfo(ProblemUserMarkDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        ProblemUserMarkInnerInfo info = new ProblemUserMarkInnerInfo();
         BeanUtils.copyProperties(domain, info);
         return info;
     }

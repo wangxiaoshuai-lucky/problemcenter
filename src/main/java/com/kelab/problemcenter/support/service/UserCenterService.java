@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class UserCenterService {
@@ -23,9 +21,9 @@ public class UserCenterService {
     }
 
     public List<UserInfo> queryByUserIds(Context context, List<Integer> ids) {
-        Map<String, Object> param = new HashMap<>();
-        param.put("ids", Strings.collectionToCommaDelimitedString(ids));
-        List<UserInfo> userInfos = userCenterServiceSender.queryByUserIds(ParamBuilder.buildParam(context, param));
+        List<UserInfo> userInfos = userCenterServiceSender.queryByUserIds(
+                ParamBuilder.buildParam(context)
+                        .param("ids", Strings.collectionToCommaDelimitedString(ids)));
         if (CollectionUtils.isEmpty(userInfos)) {
             return Collections.emptyList();
         }
