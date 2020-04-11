@@ -1,6 +1,7 @@
 package com.kelab.problemcenter.controller;
 
 import cn.wzy.verifyUtils.annotation.Verify;
+import com.google.common.base.Preconditions;
 import com.kelab.info.base.JsonAndModel;
 import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
@@ -66,6 +67,8 @@ public class ProblemTestDataController {
      */
     @PostMapping(value = "/testdata/upload.do")
     public JsonAndModel uploadTestData(Context context, Integer problemId, @RequestBody MultipartFile file) throws Exception {
+        Preconditions.checkArgument(problemId != null, "problemId 不能为空");
+        Preconditions.checkArgument(file != null, "文件不能为空");
         problemTestDataService.uploadTestData(context, problemId, file);
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
