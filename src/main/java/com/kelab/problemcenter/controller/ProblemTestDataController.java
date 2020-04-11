@@ -8,6 +8,7 @@ import com.kelab.info.problemcenter.info.ProblemTestDataInfo;
 import com.kelab.problemcenter.convert.ProblemTestDataConvert;
 import com.kelab.problemcenter.service.ProblemTestDataService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,6 +58,15 @@ public class ProblemTestDataController {
     @Verify(sizeLimit = "ids [1, 200]")
     public JsonAndModel deleteProblemTestData(Context context, @RequestParam("ids") List<Integer> ids) {
         problemTestDataService.deleteProblemTestData(context, ids);
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
+    }
+
+    /**
+     * 上传测试数据
+     */
+    @PostMapping(value = "/testdata/upload.do")
+    public JsonAndModel uploadTestData(Context context, Integer problemId, @RequestBody MultipartFile file) throws Exception {
+        problemTestDataService.uploadTestData(context, problemId, file);
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
 }
