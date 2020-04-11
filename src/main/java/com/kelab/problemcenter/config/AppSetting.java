@@ -10,9 +10,19 @@ public class AppSetting {
 
     public static Long cacheMillisecond;
 
+    /**
+     * 远端拉取判题数据密钥
+     */
+    public static String secretKey;
+
     @Value("${cache.millisecond}")
     public void setCacheMillisecond(Long cacheMillisecond) {
         AppSetting.cacheMillisecond = cacheMillisecond;
+    }
+
+    @Value("${key.secretKey}")
+    public void setSecretKey(String secretKey) {
+        AppSetting.secretKey = secretKey;
     }
 
 }

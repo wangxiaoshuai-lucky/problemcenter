@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kelab.problemcenter.dal.dao.ProblemTestDataMapper">
+
+    <resultMap id="BaseResultMap" type="com.kelab.problemcenter.dal.model.ProblemTestDataModel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="problem_id" property="problemId" jdbcType="INTEGER"/>
+        <result column="in" property="in" jdbcType="LONGVARCHAR"/>
+        <result column="out" property="out" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `problem_id`, `in`, `out`
+    </sql>
+
+    <select id="queryByProblemId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_testdata`
+        where `problem_id` = #{problemId}
+    </select>
+
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from `Problem_testdata`
+        where `id` = #{id}
+    </select>
+
+    <insert id="saveList">
+        insert into `Problem_testdata`
+        (`problem_id`, `in`, `out`) values
+        <foreach collection="records" item="item" index="index" separator=",">
+            (#{item.problemId, jdbcType=INTEGER}, #{item.in, jdbcType=LONGVARCHAR}, #{item.out, jdbcType=LONGVARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="update">
+        update `Problem_testdata`
+        <set>
+            <if test="'record.in' != null">
+                `in` = #{record.in, jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.out != null">
+                `out` = #{record.out, jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where `id` = #{record.id, jdbcType=INTEGER}
+    </update>
+
+    <delete id="delete">
+        delete from `Problem_testdata`
+        where `id` in
+        <foreach collection="ids" item="item"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>

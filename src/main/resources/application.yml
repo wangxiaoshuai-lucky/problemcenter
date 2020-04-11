@@ -21,7 +21,8 @@ feign:
 # cache 配置
 cache:
   millisecond: 7200000
-
+key:
+  secretKey: ok1293983411faasdf
 # log 配置
 logging:
   level:
