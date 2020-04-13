@@ -21,8 +21,10 @@ feign:
 # cache 配置
 cache:
   millisecond: 7200000
-key:
+judge:
   secretKey: ok1293983411faasdf
+  callback: http://acm.swust.edu.cn/API/submit.do
+  serviceUrl: http://acm.swust.edu.cn/OnlineJudge/judge.do
 # log 配置
 logging:
   level:

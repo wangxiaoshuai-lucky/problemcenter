@@ -23,15 +23,11 @@
 
     <update id="updateByProbId" parameterType="com.kelab.problemcenter.dal.model.ProblemSubmitInfoModel">
         update `Problem_submit_info`
-        <set>
-            <if test="record.acNum != null">
-                `ac_num` = #{record.acNum, jdbcType=INTEGER},
-            </if>
-            <if test="record.submitNum != null">
-                `submit_num` = #{record.submitNum, jdbcType=INTEGER},
-            </if>
-        </set>
-        where `problem_id` = #{record.problemId, jdbcType=INTEGER}
+        set `submit_num` = `submit_num` + 1
+        <if test="ac == true">
+            , `ac_num` = `ac_num` + 1
+        </if>
+        where `problem_id` = #{proId, jdbcType=INTEGER}
     </update>
 
 

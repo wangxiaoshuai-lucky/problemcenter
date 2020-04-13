@@ -66,6 +66,12 @@ public class ProblemSubmitRecordRepoImpl implements ProblemSubmitRecordRepo {
     }
 
     @Override
+    public void updateSubmitRecord(ProblemSubmitRecordDomain record) {
+        problemSubmitRecordMapper.updateSubmitRecord(ProblemSubmitRecordConvert.domainToModel(record));
+        redisCache.delete(CacheBizName.PROBLEM_SUBMIT_RECORD, record.getId());
+    }
+
+    @Override
     @Verify(numberLimit = {"query.page [1, 100000]", "query.rows [1, 100000]"})
     public List<ProblemSubmitRecordDomain> queryPage(Context context, ProblemSubmitRecordQuery query, SubmitRecordFilterDomain filter) {
         return convertAndFillProblemAndUserInfo(context, problemSubmitRecordMapper.queryPage(query), filter);

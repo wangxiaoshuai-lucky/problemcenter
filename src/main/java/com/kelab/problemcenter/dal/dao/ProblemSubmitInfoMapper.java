@@ -13,5 +13,5 @@ public interface ProblemSubmitInfoMapper {
 
     Integer save(@Param("record") ProblemSubmitInfoModel record);
 
-    void updateByProbId(@Param("record") ProblemSubmitInfoModel record);
+    void updateByProbId(@Param("proId") Integer proId, @Param("ac") boolean ac);
 }

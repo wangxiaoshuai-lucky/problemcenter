@@ -74,9 +74,10 @@ public class ProblemTestDataServiceImpl implements ProblemTestDataService {
             File path = new File("/tmp/" + System.currentTimeMillis());
             File problemPath = new File(path, problemId.toString());
             Preconditions.checkState(problemPath.mkdirs());
-            testDataList.forEach(singleTestData -> {
-                File inFile = new File(problemPath, singleTestData.getId() + ".in");
-                File outFile = new File(problemPath, singleTestData.getId() + ".out");
+            for (int i = 0; i < testDataList.size(); i++) {
+                ProblemTestDataDomain singleTestData = testDataList.get(i);
+                File inFile = new File(problemPath, i + ".in");
+                File outFile = new File(problemPath, i + ".out");
                 try {
                     Preconditions.checkState(inFile.createNewFile());
                     FileUtils.write(inFile, singleTestData.getIn());
@@ -84,7 +85,7 @@ public class ProblemTestDataServiceImpl implements ProblemTestDataService {
                 } catch (IOException e) {
                     contextLogger.error(context, "生成文件出错:%s", e.getMessage());
                 }
-            });
+            }
             String zipName = problemId + "判题数据.zip";
             zipName = new String(zipName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
             ZipUtils.zipWithoutRoot(problemPath.getPath(), path.getPath() + "/" + zipName);

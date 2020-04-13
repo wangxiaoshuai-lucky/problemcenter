@@ -5,6 +5,7 @@ import com.kelab.info.base.SingleResult;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.vo.JudgeResult;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.result.MilestoneResult;
@@ -26,6 +27,11 @@ public interface ProblemSubmitRecordService {
      * 提交判题， 返回提交结果
      */
     SubmitResult submit(Context context, ProblemSubmitRecordDomain record);
+
+    /**
+     * 判题回调接口
+     */
+    void judgeCallback(Context context, Integer id, String key, JudgeResult result);
 
     /**
      * 获取具体提交信息

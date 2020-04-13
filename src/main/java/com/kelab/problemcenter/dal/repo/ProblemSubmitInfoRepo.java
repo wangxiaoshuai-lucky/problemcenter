@@ -9,4 +9,6 @@ public interface ProblemSubmitInfoRepo {
     List<ProblemSubmitInfoDomain> queryByProbIds(List<Integer> probIds);
 
     void save(ProblemSubmitInfoDomain record);
+
+    void updateByProbId(Integer proId, boolean ac);
 }

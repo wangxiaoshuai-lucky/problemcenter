@@ -39,4 +39,9 @@ public class ProblemSubmitInfoRepoImpl implements ProblemSubmitInfoRepo {
         problemSubmitInfoMapper.save(model);
         record.setId(model.getId());
     }
+
+    @Override
+    public void updateByProbId(Integer proId, boolean ac) {
+        problemSubmitInfoMapper.updateByProbId(proId, ac);
+    }
 }

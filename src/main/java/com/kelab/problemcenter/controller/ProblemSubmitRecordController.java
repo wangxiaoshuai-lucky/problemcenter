@@ -6,13 +6,11 @@ import com.kelab.info.base.constant.StatusMsgConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.vo.JudgeResult;
 import com.kelab.problemcenter.builder.ProblemSubmitRecordBuilder;
 import com.kelab.problemcenter.result.SubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProblemSubmitRecordController {
@@ -43,6 +41,16 @@ public class ProblemSubmitRecordController {
         return JsonAndModel.builder(submitResult.getStatus())
                 .data(submitResult.getSubmitId())
                 .build();
+    }
+
+    /**
+     * 判题回调接口
+     */
+    @PutMapping("/submit.do")
+    @Verify(notNull = "*")
+    public JsonAndModel judgeCallback(Context context, Integer id, String key, @RequestBody JudgeResult result) {
+        problemSubmitRecordService.judgeCallback(context, id, key, result);
+        return JsonAndModel.builder(StatusMsgConstant.SUCCESS).build();
     }
 
     /**

@@ -91,6 +91,25 @@
         #{record.codeLength, jdbcType=INTEGER}, #{record.source, jdbcType=VARCHAR})
     </insert>
 
+    <update id="updateSubmitRecord">
+        update `Problem_submit_record`
+        <set>
+            <if test="record.status != null">
+                `status` = #{record.status},
+            </if>
+            <if test="record.timeUsed != null">
+                `time_used` = #{record.timeUsed},
+            </if>
+            <if test="record.memoryUsed != null">
+                `memory_used` = #{record.memoryUsed},
+            </if>
+            <if test="record.errorMessage != null">
+                `error_message` = #{record.errorMessage},
+            </if>
+        </set>
+        where `id` = #{record.id}
+    </update>
+
     <resultMap id="OnlineStatisticResultMap" type="com.kelab.info.usercenter.info.OnlineStatisticResult">
         <result column="time" property="time" jdbcType="VARCHAR"/>
         <result column="total_login" property="totalLogin" jdbcType="INTEGER"/>

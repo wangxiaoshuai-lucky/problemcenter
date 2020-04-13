@@ -1,5 +1,6 @@
 package com.kelab.problemcenter.service.Impl;
 
+import com.google.common.base.Preconditions;
 import com.kelab.info.base.PaginationResult;
 import com.kelab.info.base.SingleResult;
 import com.kelab.info.base.constant.StatusMsgConstant;
@@ -7,7 +8,11 @@ import com.kelab.info.base.constant.UserRoleConstant;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemSubmitRecordInfo;
 import com.kelab.info.problemcenter.query.ProblemSubmitRecordQuery;
+import com.kelab.info.problemcenter.vo.JudgeResult;
+import com.kelab.info.problemcenter.vo.JudgeTask;
+import com.kelab.info.problemcenter.vo.ResultCase;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
+import com.kelab.problemcenter.config.AppSetting;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
 import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
@@ -16,13 +21,19 @@ import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
+import com.kelab.problemcenter.dal.repo.ProblemSubmitInfoRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
 import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
 import com.kelab.problemcenter.result.UserSubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
+import com.kelab.util.uuid.UuidUtil;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,14 +52,22 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
 
     private ProblemRepo problemRepo;
 
+    private ProblemSubmitInfoRepo problemSubmitInfoRepo;
+
     private RedisCache redisCache;
+
+    private RestTemplate restTemplate;
 
     public ProblemSubmitRecordServiceImpl(ProblemSubmitRecordRepo problemSubmitRecordRepo,
                                           ProblemRepo problemRepo,
-                                          RedisCache redisCache) {
+                                          ProblemSubmitInfoRepo problemSubmitInfoRepo,
+                                          RedisCache redisCache,
+                                          RestTemplate restTemplate) {
         this.problemSubmitRecordRepo = problemSubmitRecordRepo;
         this.problemRepo = problemRepo;
+        this.problemSubmitInfoRepo = problemSubmitInfoRepo;
         this.redisCache = redisCache;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -69,10 +88,60 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
             result.setStatus(StatusMsgConstant.SUBMIT_FREQUENTLY_ERROR);
             return result;
         }
+        List<ProblemDomain> problems = problemRepo.queryByIds(context, Collections.singletonList(record.getProblemId()), null);
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(problems));
         problemSubmitRecordRepo.saveSubmitRecord(record);
         result.setSubmitId(record.getId());
-        // todo 发送判题任务
+        result.setStatus(StatusMsgConstant.SUCCESS);
+        sendJudgeTask(record, problems.get(0));
         return result;
+    }
+
+    private void sendJudgeTask(ProblemSubmitRecordDomain record, ProblemDomain problem) {
+        JudgeTask task = new JudgeTask();
+        task.setProId(record.getProblemId());
+        task.setJudgeId(record.getCompilerId());
+        task.setSrc(record.getSource());
+        task.setTimeLimit(problem.getTimeLimit());
+        task.setMemoryLimit(problem.getMemoryLimit());
+        String uuid = UuidUtil.genUUID();
+        redisCache.set(CacheBizName.JUDGE_KEY, String.valueOf(record.getId()), uuid);
+        task.setCallBack(String.format("%s?id=%d&key=%s", AppSetting.judgeCallback, record.getId(), uuid));
+        ResponseEntity<String> response = restTemplate.postForEntity(AppSetting.judgeServiceUrl, task, String.class);
+        Preconditions.checkArgument(response.getStatusCode() == HttpStatus.OK, "发送判题失败");
+        Preconditions.checkArgument("OK".equals(response.getBody()), "发送判题失败");
+    }
+
+    @Override
+    public void judgeCallback(Context context, Integer id, String key, JudgeResult result) {
+        Preconditions.checkArgument(key.equals(redisCache.get(CacheBizName.JUDGE_KEY, String.valueOf(id))), "权限有误");
+        List<ProblemSubmitRecordDomain> submitRecords = problemSubmitRecordRepo.queryByIds(context, Collections.singletonList(id), null);
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(submitRecords));
+        ProblemSubmitRecordDomain record = submitRecords.get(0);
+        // 判题出现错误
+        if (StringUtils.isNotBlank(result.getGlobalMsg())) {
+            record.setErrorMessage(result.getGlobalMsg());
+            record.setStatus(ProblemJudgeStatus.CE);
+            problemSubmitRecordRepo.updateSubmitRecord(record);
+            problemSubmitInfoRepo.updateByProbId(record.getProblemId(), false);
+            return;
+        }
+        for (ResultCase single : result.getResult()) {
+            record.setTimeUsed(single.getTimeUsed());
+            record.setMemoryUsed(single.getMemoryUsed());
+            if (single.getStatus() != ProblemJudgeStatus.AC.value()) {
+                record.setStatus(ProblemJudgeStatus.valueOf(single.getStatus()));
+                break;
+            } else {
+                record.setStatus(ProblemJudgeStatus.AC);
+            }
+        }
+        // 已经赋值好了
+        if (record.getStatus() != ProblemJudgeStatus.WAITING) {
+            problemSubmitRecordRepo.updateSubmitRecord(record);
+            problemSubmitInfoRepo.updateByProbId(record.getProblemId(), record.getStatus() == ProblemJudgeStatus.AC);
+            // todo 更新用户ac量
+        }
     }
 
     @Override

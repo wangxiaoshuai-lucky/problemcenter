@@ -15,14 +15,28 @@ public class AppSetting {
      */
     public static String secretKey;
 
+    public static String judgeServiceUrl;
+
+    public static String judgeCallback;
+
     @Value("${cache.millisecond}")
     public void setCacheMillisecond(Long cacheMillisecond) {
         AppSetting.cacheMillisecond = cacheMillisecond;
     }
 
-    @Value("${key.secretKey}")
+    @Value("${judge.secretKey}")
     public void setSecretKey(String secretKey) {
         AppSetting.secretKey = secretKey;
+    }
+
+    @Value("${judge.callback}")
+    public void setJudgeCallback(String judgeCallback) {
+        AppSetting.judgeCallback = judgeCallback;
+    }
+
+    @Value("${judge.serviceUrl}")
+    public void setJudgeServiceUrl(String judgeServiceUrl) {
+        AppSetting.judgeServiceUrl = judgeServiceUrl;
     }
 
 }

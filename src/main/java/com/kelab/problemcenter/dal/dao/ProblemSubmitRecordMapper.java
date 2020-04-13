@@ -42,6 +42,11 @@ public interface ProblemSubmitRecordMapper {
     void saveSubmitRecord(@Param("record") ProblemSubmitRecordModel record);
 
     /**
+     * 保存提交记录
+     */
+    void updateSubmitRecord(@Param("record") ProblemSubmitRecordModel record);
+
+    /**
      * 获取每个小时的submit数
      */
     List<OnlineStatisticResult> countSubmitDay(@Param("startTime") Long startTime, @Param("endTime") Long endTime);
