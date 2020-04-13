@@ -135,7 +135,7 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
             record.setErrorMessage(result.getGlobalMsg());
             record.setStatus(ProblemJudgeStatus.CE);
             problemSubmitRecordRepo.updateSubmitRecord(record);
-            problemSubmitInfoRepo.updateByProbId(record.getProblemId(), false);
+            updateSubmitInfo(record);
             return;
         }
         for (ResultCase single : result.getResult()) {
@@ -170,7 +170,7 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
             newRecord.setSubmitId(record.getId());
             problemUserMarkRepo.save(newRecord);
             // 第一次 ac 或者 challenge
-            userCenterService.judgeCallback(record.getUserId(), record.getStatus() == ProblemJudgeStatus.AC);
+            userCenterService.judgeCallback(null, record.getUserId(), record.getStatus() == ProblemJudgeStatus.AC);
         } else {
             ProblemUserMarkDomain oldRecord = records.get(0);
             // 重复 ac 或者 challenge 更新关联id
@@ -179,7 +179,7 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
                 oldRecord.setSubmitId(record.getId());
                 problemUserMarkRepo.update(oldRecord);
                 // 都算用户没有ac
-                userCenterService.judgeCallback(record.getUserId(), false);
+                userCenterService.judgeCallback(null,record.getUserId(), false);
             } else if (record.getStatus() == ProblemJudgeStatus.AC){
                 // 从 challenge 到 ac
                 problemUserMarkRepo.delete(record.getUserId(), record.getProblemId(), MarkType.CHALLENGING);
@@ -189,7 +189,7 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
                 newRecord.setMarkType(MarkType.AC);
                 newRecord.setSubmitId(record.getId());
                 problemUserMarkRepo.save(newRecord);
-                userCenterService.judgeCallback(record.getUserId(), true);
+                userCenterService.judgeCallback(null, record.getUserId(), true);
             }
         }
     }

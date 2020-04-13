@@ -30,7 +30,7 @@ public class UserCenterService {
         return userInfos;
     }
 
-    public void judgeCallback(Integer userId, boolean ac) {
+    public void judgeCallback(Context context, Integer userId, boolean ac) {
         userCenterServiceSender.judgeCallback(ParamBuilder.buildParam().param("userId", userId).param("ac", ac));
     }
 }

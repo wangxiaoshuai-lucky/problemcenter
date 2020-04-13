@@ -1,8 +1,6 @@
 package com.kelab.problemcenter.support.facade;
 
 
-import cn.wzy.verifyUtils.annotation.Verify;
-import com.kelab.info.context.Context;
 import com.kelab.info.usercenter.info.UserInfo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
