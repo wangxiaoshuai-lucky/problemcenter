@@ -14,19 +14,23 @@ import com.kelab.info.problemcenter.vo.ResultCase;
 import com.kelab.info.usercenter.info.OnlineStatisticResult;
 import com.kelab.problemcenter.config.AppSetting;
 import com.kelab.problemcenter.constant.enums.CacheBizName;
+import com.kelab.problemcenter.constant.enums.MarkType;
 import com.kelab.problemcenter.constant.enums.ProblemJudgeStatus;
 import com.kelab.problemcenter.convert.ProblemSubmitRecordConvert;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitRecordDomain;
+import com.kelab.problemcenter.dal.domain.ProblemUserMarkDomain;
 import com.kelab.problemcenter.dal.domain.SubmitRecordFilterDomain;
 import com.kelab.problemcenter.dal.redis.RedisCache;
 import com.kelab.problemcenter.dal.repo.ProblemRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitInfoRepo;
 import com.kelab.problemcenter.dal.repo.ProblemSubmitRecordRepo;
+import com.kelab.problemcenter.dal.repo.ProblemUserMarkRepo;
 import com.kelab.problemcenter.result.MilestoneResult;
 import com.kelab.problemcenter.result.SubmitResult;
 import com.kelab.problemcenter.result.UserSubmitResult;
 import com.kelab.problemcenter.service.ProblemSubmitRecordService;
+import com.kelab.problemcenter.support.service.UserCenterService;
 import com.kelab.util.uuid.UuidUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -54,6 +58,10 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
 
     private ProblemSubmitInfoRepo problemSubmitInfoRepo;
 
+    private ProblemUserMarkRepo problemUserMarkRepo;
+
+    private UserCenterService userCenterService;
+
     private RedisCache redisCache;
 
     private RestTemplate restTemplate;
@@ -61,11 +69,15 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
     public ProblemSubmitRecordServiceImpl(ProblemSubmitRecordRepo problemSubmitRecordRepo,
                                           ProblemRepo problemRepo,
                                           ProblemSubmitInfoRepo problemSubmitInfoRepo,
+                                          ProblemUserMarkRepo problemUserMarkRepo,
+                                          UserCenterService userCenterService,
                                           RedisCache redisCache,
                                           RestTemplate restTemplate) {
         this.problemSubmitRecordRepo = problemSubmitRecordRepo;
         this.problemRepo = problemRepo;
         this.problemSubmitInfoRepo = problemSubmitInfoRepo;
+        this.problemUserMarkRepo = problemUserMarkRepo;
+        this.userCenterService = userCenterService;
         this.redisCache = redisCache;
         this.restTemplate = restTemplate;
     }
@@ -139,8 +151,46 @@ public class ProblemSubmitRecordServiceImpl implements ProblemSubmitRecordServic
         // 已经赋值好了
         if (record.getStatus() != ProblemJudgeStatus.WAITING) {
             problemSubmitRecordRepo.updateSubmitRecord(record);
-            problemSubmitInfoRepo.updateByProbId(record.getProblemId(), record.getStatus() == ProblemJudgeStatus.AC);
-            // todo 更新用户ac量
+            updateSubmitInfo(record);
+        }
+    }
+
+    private void updateSubmitInfo(ProblemSubmitRecordDomain record) {
+        // 更新题目的提交情况
+        problemSubmitInfoRepo.updateByProbId(record.getProblemId(), record.getStatus() == ProblemJudgeStatus.AC);
+        // 看之前的 ac 或者 challenge 记录
+        List<ProblemUserMarkDomain> records = problemUserMarkRepo.queryByUserIdAndProIdsAndTypes(record.getUserId(),
+                Collections.singletonList(record.getProblemId()), Arrays.asList(MarkType.AC, MarkType.CHALLENGING));
+        // 最多只有一个
+        if (records.size() == 0) {
+            ProblemUserMarkDomain newRecord = new ProblemUserMarkDomain();
+            newRecord.setProblemId(record.getProblemId());
+            newRecord.setUserId(record.getUserId());
+            newRecord.setMarkType(record.getStatus() == ProblemJudgeStatus.AC ? MarkType.AC : MarkType.CHALLENGING);
+            newRecord.setSubmitId(record.getId());
+            problemUserMarkRepo.save(newRecord);
+            // 第一次 ac 或者 challenge
+            userCenterService.judgeCallback(record.getUserId(), record.getStatus() == ProblemJudgeStatus.AC);
+        } else {
+            ProblemUserMarkDomain oldRecord = records.get(0);
+            // 重复 ac 或者 challenge 更新关联id
+            if (record.getStatus() == ProblemJudgeStatus.AC && oldRecord.getMarkType() == MarkType.AC
+                    || record.getStatus() != ProblemJudgeStatus.AC && oldRecord.getMarkType() == MarkType.CHALLENGING) {
+                oldRecord.setSubmitId(record.getId());
+                problemUserMarkRepo.update(oldRecord);
+                // 都算用户没有ac
+                userCenterService.judgeCallback(record.getUserId(), false);
+            } else if (record.getStatus() == ProblemJudgeStatus.AC){
+                // 从 challenge 到 ac
+                problemUserMarkRepo.delete(record.getUserId(), record.getProblemId(), MarkType.CHALLENGING);
+                ProblemUserMarkDomain newRecord = new ProblemUserMarkDomain();
+                newRecord.setProblemId(record.getProblemId());
+                newRecord.setUserId(record.getUserId());
+                newRecord.setMarkType(MarkType.AC);
+                newRecord.setSubmitId(record.getId());
+                problemUserMarkRepo.save(newRecord);
+                userCenterService.judgeCallback(record.getUserId(), true);
+            }
         }
     }
 

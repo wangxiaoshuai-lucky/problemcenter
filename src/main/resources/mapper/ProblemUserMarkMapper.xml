@@ -14,6 +14,15 @@
     <sql id="Base_Column_List">
         `id`, `user_id`, `problem_id`, `mark_type`, `mark_time`, `submit_id`
     </sql>
+    <update id="update">
+        update `Problem_user_mark`
+        <set>
+            <if test="record.submitId != null">
+                `submit_id` = #{record.submitId},
+            </if>
+        </set>
+        where `id` = #{record.id}
+    </update>
 
     <select id="queryByUserIdAndTypes" resultMap="BaseResultMap">
         select
@@ -67,9 +76,9 @@
 
     <insert id="save">
         insert into `Problem_user_mark`
-        (`user_id`, `problem_id`, `mark_type`, `mark_time`)
+        (`user_id`, `problem_id`, `mark_type`, `mark_time`, `submit_id`)
         values
-        (#{userId, jdbcType=INTEGER}, #{probId, jdbcType=INTEGER}, #{type, jdbcType=INTEGER}, unix_timestamp(now()) * 1000)
+        (#{record.userId}, #{record.problemId}, #{record.markType}, unix_timestamp(now()) * 1000, #{record.submitId})
     </insert>
 
     <delete id="delete">

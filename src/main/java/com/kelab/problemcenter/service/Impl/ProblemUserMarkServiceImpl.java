@@ -64,7 +64,11 @@ public class ProblemUserMarkServiceImpl implements ProblemUserMarkService {
                 Collections.singletonList(MarkType.COLLECT));
         if (CollectionUtils.isEmpty(old)) {
             // 添加收藏
-            problemUserMarkRepo.save(context.getOperatorId(), record.getProblemId(), MarkType.COLLECT);
+            ProblemUserMarkDomain newRecord = new ProblemUserMarkDomain();
+            newRecord.setMarkType(MarkType.COLLECT);
+            newRecord.setUserId(context.getOperatorId());
+            newRecord.setProblemId(record.getProblemId());
+            problemUserMarkRepo.save(newRecord);
         } else {
             // 删除收藏
             problemUserMarkRepo.delete(context.getOperatorId(), record.getProblemId(), MarkType.COLLECT);

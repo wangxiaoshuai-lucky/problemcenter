@@ -12,7 +12,9 @@ public interface ProblemUserMarkRepo {
 
     List<ProblemUserMarkDomain> queryByUserIdAndProIdsAndTypes(Integer userId, List<Integer> problemIds, List<MarkType> types);
 
-    void save(Integer userId, Integer problemId, MarkType markType);
+    void save(ProblemUserMarkDomain record);
+
+    void update(ProblemUserMarkDomain record);
 
     void delete(Integer userId, Integer problemId, MarkType markType);
 

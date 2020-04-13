@@ -53,8 +53,13 @@ public class ProblemUserMarkRepoImpl implements ProblemUserMarkRepo {
     }
 
     @Override
-    public void save(Integer userId, Integer problemId, MarkType markType) {
-        problemUserMarkMapper.save(userId, problemId, markType.value());
+    public void save(ProblemUserMarkDomain record) {
+        problemUserMarkMapper.save(ProblemUserMarkConvert.domainToModel(record));
+    }
+
+    @Override
+    public void update(ProblemUserMarkDomain record) {
+        problemUserMarkMapper.update(ProblemUserMarkConvert.domainToModel(record));
     }
 
     @Override

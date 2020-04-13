@@ -28,6 +28,16 @@ public class ProblemUserMarkConvert {
         return info;
     }
 
+    public static ProblemUseMarkModel domainToModel(ProblemUserMarkDomain domain) {
+        if (domain == null) {
+            return null;
+        }
+        ProblemUseMarkModel model = new ProblemUseMarkModel();
+        BeanUtils.copyProperties(domain, model);
+        model.setMarkType(domain.getMarkType().value());
+        return model;
+    }
+
     public static ProblemUserMarkInnerInfo domainToInnerInfo(ProblemUserMarkDomain domain) {
         if (domain == null) {
             return null;
