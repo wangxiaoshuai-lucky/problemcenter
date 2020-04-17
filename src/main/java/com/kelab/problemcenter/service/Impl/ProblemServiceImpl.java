@@ -76,7 +76,11 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public void updateProblem(Context context, ProblemDomain record) {
         List<ProblemDomain> oldProblems = problemRepo.queryByIds(context, Collections.singletonList(record.getId()), null);
-        problemRepo.update(record);
+        if (record.getStatus() == ProblemStatus.REJECT_REVIEW) {
+            problemRepo.delete(Collections.singletonList(record.getId()));
+        } else {
+            problemRepo.update(record);
+        }
         contextLogger.info(context, "更新题目，原信息:%s", JSON.toJSONString(oldProblems));
     }
 
