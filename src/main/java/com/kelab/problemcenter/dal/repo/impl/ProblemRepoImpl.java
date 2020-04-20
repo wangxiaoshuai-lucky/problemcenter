@@ -114,7 +114,6 @@ public class ProblemRepoImpl implements ProblemRepo {
         ProblemModel model = ProblemConvert.domainToModel(record);
         problemMapper.update(model);
         // 保存最新标签信息
-        problemAttachTagsRepo.deleteByProblemIds(Collections.singletonList(record.getId()));
         saveAttachTags(record);
         redisCache.deleteList(CacheBizName.PROBLEM_INFO, Collections.singletonList(record.getId()));
     }
@@ -135,6 +134,7 @@ public class ProblemRepoImpl implements ProblemRepo {
         // 标签信息
         List<ProblemTagsDomain> tagsDomains = record.getTagsDomains();
         if (!CollectionUtils.isEmpty(tagsDomains)) {
+            problemAttachTagsRepo.deleteByProblemIds(Collections.singletonList(record.getId()));
             List<ProblemAttachTagsDomain> attachDomains = new ArrayList<>(tagsDomains.size());
             tagsDomains.forEach(item -> {
                 ProblemAttachTagsDomain domain = new ProblemAttachTagsDomain();

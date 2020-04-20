@@ -21,11 +21,6 @@ public interface ProblemNoteMapper {
     Integer queryTotal(@Param("query") ProblemNoteQuery query);
 
     /**
-     * 通过 userId、 problemId 查询
-     */
-    ProblemNoteModel queryByUserIdAndProbId(@Param("userId") Integer userId, @Param("probId") Integer probId);
-
-    /**
      * 通过 ids 查询
      */
     List<ProblemNoteModel> queryByIds(@Param("ids")List<Integer> ids);

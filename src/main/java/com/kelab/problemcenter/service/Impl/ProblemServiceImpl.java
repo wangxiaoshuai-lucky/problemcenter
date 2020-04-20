@@ -1,6 +1,7 @@
 package com.kelab.problemcenter.service.Impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Preconditions;
 import com.kelab.info.base.PaginationResult;
 import com.kelab.info.base.constant.UserRoleConstant;
 import com.kelab.info.context.Context;
@@ -76,6 +77,11 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public void updateProblem(Context context, ProblemDomain record) {
         List<ProblemDomain> oldProblems = problemRepo.queryByIds(context, Collections.singletonList(record.getId()), null);
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(oldProblems), "非法操作");
+        if (oldProblems.get(0).getStatus() == ProblemStatus.IN_REVIEW &&
+                record.getStatus() == ProblemStatus.PASS_REVIEW) {
+            Preconditions.checkArgument(context.getOperatorRoleId() == UserRoleConstant.ADMIN, "非法操作");
+        }
         if (record.getStatus() == ProblemStatus.REJECT_REVIEW) {
             problemRepo.delete(Collections.singletonList(record.getId()));
         } else {

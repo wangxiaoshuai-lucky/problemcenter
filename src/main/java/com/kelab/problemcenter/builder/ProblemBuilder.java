@@ -1,9 +1,11 @@
 package com.kelab.problemcenter.builder;
 
 import com.kelab.info.problemcenter.info.ProblemInfo;
+import com.kelab.problemcenter.constant.enums.ProblemStatus;
 import com.kelab.problemcenter.convert.ProblemTagsConvert;
 import com.kelab.problemcenter.dal.domain.ProblemDomain;
 import com.kelab.problemcenter.dal.domain.ProblemSubmitInfoDomain;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.stream.Collectors;
@@ -34,21 +36,10 @@ public class ProblemBuilder {
      */
     private static ProblemDomain buildBasicInfo(ProblemInfo info) {
         ProblemDomain domain = new ProblemDomain();
-        domain.setId(info.getId());
-        domain.setTitle(info.getTitle());
-        domain.setDescription(info.getDescription());
-        domain.setInput(info.getInput());
-        domain.setOutput(info.getOutput());
-        domain.setSampleInput(info.getSampleInput());
-        domain.setSampleOutput(info.getSampleOutput());
-        domain.setHint(info.getHint());
-        domain.setTimeLimit(info.getTimeLimit());
-        domain.setMemoryLimit(info.getMemoryLimit());
-        domain.setSpecialJudge(info.getSpecialJudge());
-        domain.setSpecialJudgeSource(info.getSpecialJudgeSource());
-        domain.setFrameSource(info.getFrameSource());
-        domain.setFrameSourceCompilerId(info.getFrameSourceCompilerId());
-        domain.setSource(info.getSource());
+        BeanUtils.copyProperties(info, domain);
+        if (info.getStatus() != null) {
+            domain.setStatus(ProblemStatus.valueOf(info.getStatus()));
+        }
         return domain;
     }
 

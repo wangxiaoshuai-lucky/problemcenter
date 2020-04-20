@@ -36,11 +36,6 @@ public class ProblemNoteRepoImpl implements ProblemNoteRepo {
     }
 
     @Override
-    public ProblemNoteDomain queryByUserIdAndProbId(Integer userId, Integer probId) {
-        return ProblemNoteConvert.modelToDomain(problemNoteMapper.queryByUserIdAndProbId(userId, probId));
-    }
-
-    @Override
     public List<ProblemNoteDomain> queryByIds(List<Integer> ids) {
         return convertToDomain(problemNoteMapper.queryByIds(ids));
     }

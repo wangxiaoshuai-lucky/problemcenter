@@ -57,7 +57,13 @@
         <if test="query.orderByDifficult == true">
             inner join `Problem_submit_info` `psi` on `pro`.`id` = `psi`.`problem_id`
         </if>
-        where `pro`.`status` = 2
+        where
+        <if test="query.filterPassReview == true">
+            `pro`.`status` = 2
+        </if>
+        <if test="query.filterPassReview == false">
+            `pro`.`status` = 1
+        </if>
         <if test="query.title != null and query.title != ''">
             and `pro`.`title` like concat(#{query.title},'%')
         </if>
@@ -77,6 +83,9 @@
         <if test="query.orderByDifficult == false and query.orderByTitle == true">
             order by convert(`pro`.`title` using gbk)
         </if>
+        <if test="query.orderByDifficult == false and query.orderByTitle == false">
+            order by `id`
+        </if>
         <include refid="LIMIT_SQL"/>
     </select>
 
@@ -84,7 +93,13 @@
         select
         count(*)
         from `Problem` `pro`
-        where `pro`.`status` = 2
+        where
+        <if test="query.filterPassReview == true">
+            `pro`.`status` = 2
+        </if>
+        <if test="query.filterPassReview == false">
+            `pro`.`status` = 1
+        </if>
         <if test="query.title != null and query.title != ''">
             and `pro`.`title` like concat(#{query.title},'%')
         </if>
@@ -124,48 +139,52 @@
         update `Problem`
         <set>
             <if test="record.title != null and record.title != ''">
-                `Problem`.`title` = #{record.title}
+                `title` = #{record.title},
             </if>
             <if test="record.description != null and record.description != ''">
-                `Problem`.`description` = #{record.description}
+                `description` = #{record.description},
             </if>
             <if test="record.input != null and record.input != ''">
-                `Problem`.`input` = #{record.input}
+                `input` = #{record.input},
             </if>
             <if test="record.output != null and record.output != ''">
-                `Problem`.`output` = #{record.output}
+                `output` = #{record.output},
             </if>
             <if test="record.sampleInput != null and record.sampleInput != ''">
-                `Problem`.`sample_input` = #{record.sampleInput}
+                `sample_input` = #{record.sampleInput},
             </if>
             <if test="record.sampleOutput != null and record.sampleOutput != ''">
-                `Problem`.`sample_output` = #{record.sampleOutput}
+               `sample_output` = #{record.sampleOutput},
             </if>
             <if test="record.hint != null and record.hint != ''">
-                `Problem`.`hint` = #{record.hint}
+                `hint` = #{record.hint},
             </if>
             <if test="record.timeLimit != null">
-                `Problem`.`time_limit` = #{record.timeLimit}
+                `time_limit` = #{record.timeLimit},
             </if>
             <if test="record.memoryLimit != null">
-                `Problem`.`memory_limit` = #{record.memoryLimit}
+                `memory_limit` = #{record.memoryLimit},
             </if>
             <if test="record.specialJudge != null">
-                `Problem`.`special_judge` = #{record.specialJudge}
+                `special_judge` = #{record.specialJudge},
             </if>
             <if test="record.specialJudgeSource != null and record.specialJudgeSource != ''">
-                `Problem`.`special_judge_source` = #{record.specialJudgeSource}
+                `special_judge_source` = #{record.specialJudgeSource},
             </if>
             <if test="record.frameSource != null and record.frameSource != ''">
-                `Problem`.`frame_source` = #{record.frameSource}
+                `frame_source` = #{record.frameSource},
             </if>
             <if test="record.frameSourceCompilerId != null">
-                `Problem`.`frame_source_compiler_id` = #{record.frameSourceCompilerId}
+                `frame_source_compiler_id` = #{record.frameSourceCompilerId},
             </if>
             <if test="record.source != null and record.source != ''">
-                `Problem`.`source` = #{record.source}
+                `source` = #{record.source},
+            </if>
+            <if test="record.status != null">
+                `status` = #{record.status},
             </if>
         </set>
+        where `id` = #{record.id}
     </update>
 
     <select id="querySource" resultType="java.lang.String">

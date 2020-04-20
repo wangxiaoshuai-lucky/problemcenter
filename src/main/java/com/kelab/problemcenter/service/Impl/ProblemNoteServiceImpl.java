@@ -1,5 +1,6 @@
 package com.kelab.problemcenter.service.Impl;
 
+import com.kelab.info.base.PaginationResult;
 import com.kelab.info.context.Context;
 import com.kelab.info.problemcenter.info.ProblemNoteInfo;
 import com.kelab.info.problemcenter.query.ProblemNoteQuery;
@@ -24,9 +25,12 @@ public class ProblemNoteServiceImpl implements ProblemNoteService {
     }
 
     @Override
-    public List<ProblemNoteInfo> queryPage(Context context, ProblemNoteQuery query) {
+    public PaginationResult<ProblemNoteInfo> queryPage(Context context, ProblemNoteQuery query) {
         query.setUserId(context.getOperatorId());
-        return convertToNoteInfo(problemNoteRepo.queryPage(query));
+        PaginationResult<ProblemNoteInfo> result = new PaginationResult<>();
+        result.setPagingList(convertToNoteInfo(problemNoteRepo.queryPage(query)));
+        result.setTotal(problemNoteRepo.queryTotal(query));
+        return result;
     }
 
     @Override
@@ -36,21 +40,10 @@ public class ProblemNoteServiceImpl implements ProblemNoteService {
     }
 
     @Override
-    public ProblemNoteInfo queryByUserIdAndProbId(Context context, Integer probId) {
-        return ProblemNoteConvert.domainToInfo(problemNoteRepo.queryByUserIdAndProbId(context.getOperatorId(), probId));
-    }
-
-    @Override
     public void save(Context context, ProblemNoteDomain record) {
-        ProblemNoteDomain old = problemNoteRepo.queryByUserIdAndProbId(context.getOperatorId(), record.getProblemId());
-        if (old == null) {
-            record.setPostTime(System.currentTimeMillis());
-            record.setUserId(context.getOperatorId());
-            problemNoteRepo.save(record);
-        } else {
-            record.setId(old.getId());
-            this.update(context, record);
-        }
+        record.setPostTime(System.currentTimeMillis());
+        record.setUserId(context.getOperatorId());
+        problemNoteRepo.save(record);
     }
 
     @Override

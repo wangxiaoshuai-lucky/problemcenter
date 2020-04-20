@@ -20,12 +20,6 @@ public interface ProblemNoteRepo {
     Integer queryTotal(ProblemNoteQuery query);
 
     /**
-     * 通过 userId、 problemId 查询
-     */
-    ProblemNoteDomain queryByUserIdAndProbId(Integer userId, Integer probId);
-
-
-    /**
      * 通过 ids 查询
      */
     List<ProblemNoteDomain> queryByIds(List<Integer> ids);

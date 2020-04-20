@@ -38,7 +38,6 @@ public class ProblemUserMarkController {
      * 获取用户的收藏记录
      */
     @GetMapping("/user/problem/collect.do")
-    @Verify(notNull = "userId")
     public JsonAndModel collect(Context context) {
         return JsonAndModel.builder(StatusMsgConstant.SUCCESS)
                 .data(problemUserMarkService.collect(context))
